@@ -13,18 +13,42 @@ import static com.ai.problems.min_set.enums.instance_reader.*;
 
 public class MinSetProblem implements Problem {
 
+    private final Map<Integer, Boolean> solution_map = new HashMap<>();
+    private final Map<Integer, Boolean> solution = new HashMap<>();
+    private Random rng;
+    // List of subsets that map edges.
+    private final ArrayList< Map<Integer, Boolean> > subsets = new ArrayList<>();
+    // General data of loaded instance.
+    // Note that the assumption is that every unique instance counts *up to* the
+    // number of elements, ie numbers 1..X inclusive.
+    private final Map<Enum<instance_reader>,Integer> data = new HashMap<>();
 
+    public MinSetProblem(Random rng) {
+        this.rng = rng;
+    }
 
-    Map<Integer, Boolean> language = new HashMap<>();
-    ArrayList< ArrayList<Integer> > subsets = new ArrayList<>();
+    public void initialiseSolution(){
+        int index = 0;
+        for (Map<Integer, Boolean> subset : subsets){
+            double ran = rng.nextDouble();
+            if(ran < 0.5){
+                solution.put(index,true);
+                solution_map.putAll(subset);
+            }
+            index++;
+        }
+        System.out.println( "size " + solution.size() + " " + solution.toString());
+        System.out.println( "size " + solution_map.size() + " " + solution_map.toString());
+    }
 
+    // Inserts values into a subset arraylist specified by a string array.
     private int insertSubsetValues(int index, String[] values){
         // First get the arraylist to insert the values to.
-        ArrayList<Integer> subset;
+        Map<Integer, Boolean> subset;
         int inserted =0;
         if(index >= subsets.size()){
             // No index. Create.
-            subset = new ArrayList<>();
+            subset = new HashMap<>();
             subsets.add(subset);
         } else {
             subset = subsets.get(index);
@@ -35,30 +59,28 @@ public class MinSetProblem implements Problem {
             if (!Objects.equals(s, "")) {
                 int i = Integer.parseInt(s);
                // System.out.println(i);
-                subset.add(i);
+                subset.put(i,true);
                 inserted++;
             }
 
         }
-        //System.out.println( "size " + subset.size() + " " + subset.toString());
+       // System.out.println( "size " + subset.size() + " " + subset.toString());
         // Return number of elements inserted.
         return inserted;
     }
 
-
+    // Loads a problem instance
     @Override
     public void loadInstance(String Path) {
         try (BufferedReader reader = new BufferedReader(new FileReader(Path))) {
             String line = reader.readLine();
             // Stack to keep track of execution
-            Map<Enum<instance_reader>,Integer> data = new HashMap<>();
             String[] arr;
             int current_subset_i=0, insert_limit=1;
 
             while(line != null){
                 // Split into parts.
                 arr = line.split(" ");
-
 
                 // Do simple Parsing. First case is m n form.
                 if( data.isEmpty()){
