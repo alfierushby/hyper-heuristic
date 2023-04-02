@@ -13,11 +13,11 @@ import static com.ai.problems.min_set.enums.instance_reader.*;
 
 public class MinSetProblem implements Problem {
 
-    private final Map<Integer, Boolean> solution_map = new HashMap<>();
-    private final Map<Integer, Boolean> solution = new HashMap<>();
+    private int[] solution_map;
+    private int[] solution;
     private Random rng;
     // List of subsets that map edges.
-    private final ArrayList< Map<Integer, Boolean> > subsets = new ArrayList<>();
+    private final ArrayList< int[] > subsets = new ArrayList<>();
     // General data of loaded instance.
     // Note that the assumption is that every unique instance counts *up to* the
     // number of elements, ie numbers 1..X inclusive.
@@ -27,28 +27,38 @@ public class MinSetProblem implements Problem {
         this.rng = rng;
     }
 
+    private int[] combineEdges(int[] edges1, int[] edges2){
+        int count =0;
+        int[] combined = new int[edges1.length];
+        for(int i : edges1){
+            if(i == 1 || edges2[count] == 1)
+                combined[count] = 1;
+            count++;
+        }
+        return combined;
+    }
     public void initialiseSolution(){
         int index = 0;
-        for (Map<Integer, Boolean> subset : subsets){
+        for (int[] subset : subsets){
             double ran = rng.nextDouble();
             if(ran < 0.5){
-                solution.put(index,true);
-                solution_map.putAll(subset);
+                solution[index] = 1;
+                solution_map = combineEdges(solution_map,subset);
             }
             index++;
         }
-        System.out.println( "size " + solution.size() + " " + solution.toString());
-        System.out.println( "size " + solution_map.size() + " " + solution_map.toString());
+        System.out.println( "size " + solution.length + " " + Arrays.toString(solution));
+        System.out.println( "size " + solution_map.length + " " + Arrays.toString(solution_map));
     }
 
     // Inserts values into a subset arraylist specified by a string array.
     private int insertSubsetValues(int index, String[] values){
         // First get the arraylist to insert the values to.
-        Map<Integer, Boolean> subset;
+        int[] subset;
         int inserted =0;
         if(index >= subsets.size()){
             // No index. Create.
-            subset = new HashMap<>();
+            subset = new int[data.get(NumElements)];
             subsets.add(subset);
         } else {
             subset = subsets.get(index);
@@ -59,7 +69,7 @@ public class MinSetProblem implements Problem {
             if (!Objects.equals(s, "")) {
                 int i = Integer.parseInt(s);
                // System.out.println(i);
-                subset.put(i,true);
+                subset[i-1] = 1;
                 inserted++;
             }
 
@@ -84,8 +94,8 @@ public class MinSetProblem implements Problem {
 
                 // Do simple Parsing. First case is m n form.
                 if( data.isEmpty()){
-                    data.put(NumSubsets,Integer.valueOf(arr[1]));
-                    data.put(NumElements,Integer.valueOf(arr[2]));
+                    data.put(NumSubsets,Integer.parseInt(arr[1]));
+                    data.put(NumElements,Integer.parseInt(arr[2]));
                 }
 
                 // Second case, check size 1 and NumSubsets and NumElements are filled.
@@ -109,6 +119,10 @@ public class MinSetProblem implements Problem {
                 // Read next line.
                 line = reader.readLine();
             }
+
+            // Initialise solution memory.
+            solution = new int[data.get(NumElements)];
+            solution_map = new int[data.get(NumElements)];
         }  catch (IOException e) {
             e.printStackTrace();
         }
