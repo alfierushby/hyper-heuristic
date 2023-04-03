@@ -13,45 +13,111 @@ import static com.ai.problems.min_set.enums.instance_reader.*;
 
 public class MinSetProblem implements Problem {
 
+    // CONSTANTS
+    private final double RANDOM_INTIALISATION = .5;
+
+    // Represented using Arrays as most efficient data structure with known size.
+    // Stores number of times a node has a connected edge.
     private int[] solution_map;
+    // Binary encoding of a solution, each index specifying the subset in subsets, 1 being selected, 0 not.
     private int[] solution;
-    private Random rng;
+    private final Random rng;
     // List of subsets that map edges.
     private final ArrayList< int[] > subsets = new ArrayList<>();
     // General data of loaded instance.
     // Note that the assumption is that every unique instance counts *up to* the
     // number of elements, ie numbers 1..X inclusive.
     private final Map<Enum<instance_reader>,Integer> data = new HashMap<>();
+    private SolutionEvaluator evaluator;
+
+    public SolutionEvaluator getEvaluator() {
+        return evaluator;
+    }
+
+    public void setEvaluator(SolutionEvaluator evaluator) {
+        this.evaluator = evaluator;
+    }
+
+    /**
+     * @return number of connected edges per node in array form
+     */
+    public int[] getSolutionMap() {
+        return solution_map;
+    }
+
+    /**
+     * @return solution of problem in binary encoding form
+     */
+    public int[] getSolution() {
+        return solution;
+    }
+
+    /**
+     * @return subsets of problem
+     */
+    public ArrayList<int[]> getSubsets() {
+        return subsets;
+    }
+
+    /**
+     * @return metadata of problem
+     */
+    public Map<Enum<instance_reader>, Integer> getData() {
+        return data;
+    }
 
     public MinSetProblem(Random rng) {
         this.rng = rng;
+        setEvaluator(new SolutionEvaluator(this));
     }
 
-    private int[] combineEdges(int[] edges1, int[] edges2){
+
+      //////////////////////////////
+     // INITIALISATION FUNCTIONS //
+    //////////////////////////////
+
+    /**
+     * Combines two arrays, returning result.
+     * @param edges1 edge that is being copied
+     * @param edges2 edge that will be copied to
+     */
+    private void combineEdges(int[] edges1, int[] edges2){
         int count =0;
-        int[] combined = new int[edges1.length];
         for(int i : edges1){
-            if(i == 1 || edges2[count] == 1)
-                combined[count] = 1;
+            if(i == 1)
+                edges2[count]++;
             count++;
         }
-        return combined;
     }
+
+
+    /**
+     * Initialises the solution randomly
+     */
     public void initialiseSolution(){
         int index = 0;
         for (int[] subset : subsets){
             double ran = rng.nextDouble();
-            if(ran < 0.5){
+            if(ran < RANDOM_INTIALISATION){
                 solution[index] = 1;
-                solution_map = combineEdges(solution_map,subset);
+                combineEdges(subset,solution_map);
             }
             index++;
         }
         System.out.println( "size " + solution.length + " " + Arrays.toString(solution));
         System.out.println( "size " + solution_map.length + " " + Arrays.toString(solution_map));
+
+        getEvaluator().setObjectiveValue();
+        System.out.println( "Evaluation : " + getEvaluator().getObjectiveValue() + " Infeasibility : " + getEvaluator().getUnaccountedElements());
     }
 
-    // Inserts values into a subset arraylist specified by a string array.
+
+    /**
+     * Inserts values into a subset arraylist specified by a string array.
+     * @param index subset index in the subsets array
+     * @param values values to be inserted into the subset
+     * @return number of element edges inserted into subset
+     */
     private int insertSubsetValues(int index, String[] values){
         // First get the arraylist to insert the values to.
         int[] subset;
@@ -68,18 +134,22 @@ public class MinSetProblem implements Problem {
         for(String s : values){
             if (!Objects.equals(s, "")) {
                 int i = Integer.parseInt(s);
-               // System.out.println(i);
+                // System.out.println(i);
                 subset[i-1] = 1;
                 inserted++;
             }
 
         }
-       // System.out.println( "size " + subset.size() + " " + subset.toString());
+        // System.out.println( "size " + subset.size() + " " + subset.toString());
         // Return number of elements inserted.
         return inserted;
     }
 
-    // Loads a problem instance
+
+    /**
+     * Loads a problem instance
+     * @param Path path of problem instance, txt form.
+     */
     @Override
     public void loadInstance(String Path) {
         try (BufferedReader reader = new BufferedReader(new FileReader(Path))) {
@@ -121,10 +191,11 @@ public class MinSetProblem implements Problem {
             }
 
             // Initialise solution memory.
-            solution = new int[data.get(NumElements)];
+            solution = new int[data.get(NumSubsets)];
             solution_map = new int[data.get(NumElements)];
         }  catch (IOException e) {
             e.printStackTrace();
         }
     }
 }
+
