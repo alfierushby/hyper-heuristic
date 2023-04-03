@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
+import java.util.function.IntBinaryOperator;
 
 import static com.ai.problems.min_set.enums.instance_reader.*;
 
@@ -14,7 +15,7 @@ import static com.ai.problems.min_set.enums.instance_reader.*;
 public class MinSetProblem implements Problem {
 
     // CONSTANTS
-    private final double RANDOM_INTIALISATION = .5;
+    private final double RANDOM_INTIALISATION = .2;
 
     // Represented using Arrays as most efficient data structure with known size.
     // Stores number of times a node has a connected edge.
@@ -29,6 +30,15 @@ public class MinSetProblem implements Problem {
     // number of elements, ie numbers 1..X inclusive.
     private final Map<Enum<instance_reader>,Integer> data = new HashMap<>();
     private SolutionEvaluator evaluator;
+    private Operations operations;
+
+    public Operations getOperations() {
+        return operations;
+    }
+
+    public void setOperations(Operations operations) {
+        this.operations = operations;
+    }
 
     public SolutionEvaluator getEvaluator() {
         return evaluator;
@@ -69,6 +79,7 @@ public class MinSetProblem implements Problem {
     public MinSetProblem(Random rng) {
         this.rng = rng;
         setEvaluator(new SolutionEvaluator(this));
+        setOperations(new Operations(this));
     }
 
 
@@ -77,19 +88,46 @@ public class MinSetProblem implements Problem {
     //////////////////////////////
 
     /**
-     * Combines two arrays, returning result.
-     * @param edges1 edge that is being copied
-     * @param edges2 edge that will be copied to
+     * Generalised function to be used by insert and removal of nodes for public use. Internal function.
+     * @param left left array, loops through to do an operation to the right array
+     * @param right left array acts upon right array
+     * @param operator operation that is executed on each '1' element in the left array to the right array
      */
-    private void combineEdges(int[] edges1, int[] edges2){
+    private void operatorNode(int[] left, int[] right, IntBinaryOperator operator){
         int count =0;
-        for(int i : edges1){
+        for(int i : left){
             if(i == 1)
-                edges2[count]++;
+                right[count] = operator.applyAsInt(right[count],1);
             count++;
         }
     }
 
+    /**
+     * Combines two arrays, returning result. Acts as an insertion of one subset to another, culminating edges.
+     * Formally left + right.
+     * @param left subset that will be inserted
+     * @param right subset that will be inserted to
+     */
+    public void insertNode(int[] left, int[] right){
+        operatorNode(left,right,  (a, b) -> a + b);
+    }
+
+    /**
+     * Combines two arrays, returning result. Acts as a removal of one subset to another, removing edges.
+     * formally right - left
+     * @param toRemove subset that will be removed
+     * @param source subset that will have contents of toRemove removed
+     */
+    public void removeNode(int[] toRemove, int[] source){
+        operatorNode(toRemove,source,  (a, b) -> a - b);
+    }
+
+
+    public void printInfo(){
+        System.out.println( "size " + solution.length + " " + Arrays.toString(solution));
+        System.out.println( "size " + solution_map.length + " " + Arrays.toString(solution_map));
+        System.out.println( "Evaluation : " + getEvaluator().getObjectiveValue() + " Infeasibility : " + getEvaluator().getUnaccountedElements());
+    }
 
     /**
      * Initialises the solution randomly
@@ -100,7 +138,7 @@ public class MinSetProblem implements Problem {
             double ran = rng.nextDouble();
             if(ran < RANDOM_INTIALISATION){
                 solution[index] = 1;
-                combineEdges(subset,solution_map);
+                insertNode(subset,solution_map);
             }
             index++;
         }

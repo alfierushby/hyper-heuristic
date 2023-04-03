@@ -11,6 +11,13 @@ public class Main {
         MinSetProblem problem = new MinSetProblem(ran);
         problem.loadInstance("src/test_instances/d1_50_500.txt");
         problem.initialiseSolution();
-        System.out.println("Hello world!");
+        for(int i =0; i<20; i++){
+            System.out.println("///////////////////////////////////");
+            problem.getOperations().bitFlip(i);
+            problem.printInfo();
+            problem.getEvaluator().setObjectiveValue();
+            problem.printInfo();
+            System.out.println("///////////////////////////////////");
+        }
     }
 }
