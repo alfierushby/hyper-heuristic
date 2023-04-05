@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.function.IntBinaryOperator;
 
+import static com.ai.problems.min_set.Config.BACKUP_SOLUTION_INDEX;
+import static com.ai.problems.min_set.Config.CURRENT_SOLUTION_INDEX;
 import static com.ai.problems.min_set.enums.instance_reader.*;
 
 
@@ -19,9 +21,9 @@ public class MinSetProblem implements Problem {
 
     // Represented using Arrays as most efficient data structure with known size.
     // Stores number of times a node has a connected edge.
-    private ArrayList <int[]> solution_maps = new ArrayList<>();
+    private final ArrayList <int[]> solution_maps = new ArrayList<>();
     // Binary encoding of a solution, each index specifying the subset in subsets, 1 being selected, 0 not.
-    private ArrayList <int[]> solutions = new ArrayList<>();
+    private final ArrayList <Solution> solutions = new ArrayList<>();
     private final Random rng;
     // List of subsets that map edges.
     private final ArrayList< int[] > subsets = new ArrayList<>();
@@ -58,7 +60,7 @@ public class MinSetProblem implements Problem {
     /**
      * @return solution of problem in binary encoding form
      */
-    public int[] getSolution(int index) {
+    public Solution getSolution(int index) {
         return solutions.get(index);
     }
 
@@ -76,6 +78,10 @@ public class MinSetProblem implements Problem {
         return data;
     }
 
+    public int getNumberOfElements(){
+        return getData().get(NumElements);
+    }
+
     /**
      * This gets the objective value of a solution. Note that it does not update the objective value.
      * @param sol_index Solution index to get objective value
@@ -91,49 +97,70 @@ public class MinSetProblem implements Problem {
     }
 
 
-
       //////////////////////////////
      // INITIALISATION FUNCTIONS //
     //////////////////////////////
 
 
     public void printInfo(int index){
-        System.out.println( "size " + solutions.get(index).length + " " + Arrays.toString(solutions.get(index)));
+        System.out.println( "size " + solutions.get(index).getSolutionData().length + " " + Arrays.toString(solutions.get(index).getSolutionData()));
         System.out.println( "size " + solution_maps.get(index).length + " " + Arrays.toString(solution_maps.get(index)));
         System.out.println( "Evaluation : " + getObjectiveValue(index) + " Infeasibility : " + getEvaluator(index).getUnaccountedElements());
+    }
+
+    private void createSolution(Solution solution, int[] solution_map, int sol_index){
+
+        // Set solution to arraylist memory
+        solutions.add(sol_index,solution);
+        solution_maps.add(sol_index,solution_map);
+        evaluators.add(sol_index,new SolutionEvaluator(this,sol_index));
+    }
+
+    public void copySolution(int from, int to){
+        int[] new_map = getSolutionMap(from).clone();
+        Solution new_sol = getSolution(from).clone();
+
+        solution_maps.set(to,new_map);
+        solutions.set(to,new_sol);
     }
 
     /**
      * Initialises the solution randomly.<br>
      * <b>Must be done before using the solution index.</b>
-     * @param sol_index solution index to be inititiated
      */
-    public void initialiseSolution(int sol_index){
+    public void initialiseSolution(){
         int index = 0;
         // Initialise solution memory.
-        int[] solution = new int[data.get(NumSubsets)];
+        Solution solution = new Solution(data.get(NumSubsets));
         int[] solution_map = new int[data.get(NumElements)];
-        // Set evaluator for the solution
-        evaluators.add(sol_index,new SolutionEvaluator(this,solution,solution_map));
+
+        // Create current solution:
+        createSolution(solution,solution_map,CURRENT_SOLUTION_INDEX);
+        boolean[] solution_data = solution.getSolutionData();
 
         for (int[] subset : subsets){
             double ran = rng.nextDouble();
             if(ran < RANDOM_INTIALISATION){
-                solution[index] = 1;
-                getEvaluator(sol_index).insertNode(subset,solution_map);
+                solution_data[index] = true;
+                getEvaluator(CURRENT_SOLUTION_INDEX).insertNode(subset,solution_map);
             }
             index++;
         }
-        System.out.println( "size " + solution.length + " " + Arrays.toString(solution));
+
+        createSolution(solution.clone(),solution_map.clone(),BACKUP_SOLUTION_INDEX);
+
+        // Initialise Objective Values
+        getEvaluator(CURRENT_SOLUTION_INDEX).setObjectiveValue();
+        getEvaluator(BACKUP_SOLUTION_INDEX).setObjectiveValue();
+
+
+        System.out.println( "size " + solution_data.length + " " + Arrays.toString(solution_data));
         System.out.println( "size " + solution_map.length + " " + Arrays.toString(solution_map));
 
+        System.out.println( "Evaluation : " + getEvaluator(CURRENT_SOLUTION_INDEX).getObjectiveValue() + " Infeasibility : "
+                + getEvaluator(CURRENT_SOLUTION_INDEX).getUnaccountedElements());
 
-        System.out.println( "Evaluation : " + getEvaluator(sol_index).getObjectiveValue() + " Infeasibility : "
-                + getEvaluator(sol_index).getUnaccountedElements());
-
-        // Set solution to arraylist memory
-        solutions.add(sol_index,solution);
-        solution_maps.add(sol_index,solution_map);
+        // Create backup solution:
     }
 
 

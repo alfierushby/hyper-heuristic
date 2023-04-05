@@ -11,34 +11,33 @@ import static com.ai.problems.min_set.enums.instance_reader.NumSubsets;
 public class SolutionEvaluator {
 
     // Values for determining objective value.
-    private int objective_value, unaccounted_elements;
     private final MinSetProblem problem;
-    private final int[] solution, solution_map;
+    int solution_index;
 
-    public int[] getSolution() {
-        return solution;
+    public Solution getSolution() {
+        return problem.getSolution(solution_index);
     }
 
     public int[] getSolutionMap() {
-        return solution_map;
+        return problem.getSolutionMap(solution_index);
     }
 
     /**
      * @return objective value of solution
      */
     public int getObjectiveValue() {
-        return objective_value;
+        return getSolution().getObjectiveValue();
     }
 
     /**
      * @return number of unaccounted elements for an infeasible solution
      */
     public int getUnaccountedElements() {
-        return unaccounted_elements;
+        return getSolution().getUnaccountedElements();
     }
 
     public void setObjectiveValue(int objective_value) {
-        this.objective_value = objective_value;
+        getSolution().setObjectiveValue(objective_value);
     }
 
     public void incrementObjectiveValue(int val) {
@@ -46,13 +45,12 @@ public class SolutionEvaluator {
     }
 
     public void setUnaccountedElements(int unaccounted_elements) {
-        this.unaccounted_elements = unaccounted_elements;
+        getSolution().setUnaccountedElements(unaccounted_elements);
     }
 
-    public SolutionEvaluator(MinSetProblem problem, int[] solution, int[] solution_map) {
+    public SolutionEvaluator(MinSetProblem problem, int solution_index) {
         this.problem = problem;
-        this.solution = solution;
-        this.solution_map=solution_map;
+        this.solution_index = solution_index;
     }
 
       ////////////////////////////
@@ -114,14 +112,14 @@ public class SolutionEvaluator {
      * @param index Index of solution bit that has been flipped.
      */
     public void deltaObjectiveEvaluation(int index){
-        int bit = getSolution()[index];
+        boolean bit = getSolution().getSolutionData()[index];
         int[] subset = problem.getSubsets().get(index);
         int sum;
 
 
         int prev_unaccount = getUnaccountedElements();
 
-        if(bit==1){
+        if(bit){
             // Add to solution map.
             insertNode(subset, getSolutionMap());
             sum=1;
@@ -160,8 +158,8 @@ public class SolutionEvaluator {
      */
     public void setObjectiveValue(){
         int subsetTotal=0;
-        for(int subset : getSolution()){
-            if(subset==1)
+        for(boolean subset : getSolution().getSolutionData()){
+            if(subset)
                 subsetTotal++;
         }
 
