@@ -19,9 +19,9 @@ public class MinSetProblem implements Problem {
 
     // Represented using Arrays as most efficient data structure with known size.
     // Stores number of times a node has a connected edge.
-    private int[] solution_map;
+    private ArrayList <int[]> solution_maps = new ArrayList<>();
     // Binary encoding of a solution, each index specifying the subset in subsets, 1 being selected, 0 not.
-    private int[] solution;
+    private ArrayList <int[]> solutions = new ArrayList<>();
     private final Random rng;
     // List of subsets that map edges.
     private final ArrayList< int[] > subsets = new ArrayList<>();
@@ -29,7 +29,7 @@ public class MinSetProblem implements Problem {
     // Note that the assumption is that every unique instance counts *up to* the
     // number of elements, ie numbers 1..X inclusive.
     private final Map<Enum<instance_reader>,Integer> data = new HashMap<>();
-    private SolutionEvaluator evaluator;
+    private final ArrayList <SolutionEvaluator> evaluators = new ArrayList<>();
     private Operations operations;
 
     public Operations getOperations() {
@@ -40,26 +40,26 @@ public class MinSetProblem implements Problem {
         this.operations = operations;
     }
 
-    public SolutionEvaluator getEvaluator() {
-        return evaluator;
-    }
-
-    public void setEvaluator(SolutionEvaluator evaluator) {
-        this.evaluator = evaluator;
+    /**
+     * @param sol_index specifies what solution you want to evaluate
+     * @return a solution evaluator for the specific solution index
+     */
+    public SolutionEvaluator getEvaluator(int sol_index) {
+        return evaluators.get(sol_index);
     }
 
     /**
      * @return number of connected edges per node in array form
      */
-    public int[] getSolutionMap() {
-        return solution_map;
+    public int[] getSolutionMap(int index) {
+        return solution_maps.get(index);
     }
 
     /**
      * @return solution of problem in binary encoding form
      */
-    public int[] getSolution() {
-        return solution;
+    public int[] getSolution(int index) {
+        return solutions.get(index);
     }
 
     /**
@@ -76,77 +76,64 @@ public class MinSetProblem implements Problem {
         return data;
     }
 
+    /**
+     * This gets the objective value of a solution. Note that it does not update the objective value.
+     * @param sol_index Solution index to get objective value
+     * @return objective value
+     */
+    public int getObjectiveValue(int sol_index){
+        return evaluators.get(sol_index).getObjectiveValue();
+    }
+
     public MinSetProblem(Random rng) {
         this.rng = rng;
-        setEvaluator(new SolutionEvaluator(this));
         setOperations(new Operations(this));
     }
+
 
 
       //////////////////////////////
      // INITIALISATION FUNCTIONS //
     //////////////////////////////
 
-    /**
-     * Generalised function to be used by insert and removal of nodes for public use. Internal function.
-     * @param left left array, loops through to do an operation to the right array
-     * @param right left array acts upon right array
-     * @param operator operation that is executed on each '1' element in the left array to the right array
-     */
-    private void operatorNode(int[] left, int[] right, IntBinaryOperator operator){
-        int count =0;
-        for(int i : left){
-            if(i == 1)
-                right[count] = operator.applyAsInt(right[count],1);
-            count++;
-        }
+
+    public void printInfo(int index){
+        System.out.println( "size " + solutions.get(index).length + " " + Arrays.toString(solutions.get(index)));
+        System.out.println( "size " + solution_maps.get(index).length + " " + Arrays.toString(solution_maps.get(index)));
+        System.out.println( "Evaluation : " + getObjectiveValue(index) + " Infeasibility : " + getEvaluator(index).getUnaccountedElements());
     }
 
     /**
-     * Combines two arrays, returning result. Acts as an insertion of one subset to another, culminating edges.
-     * Formally left + right.
-     * @param left subset that will be inserted
-     * @param right subset that will be inserted to
+     * Initialises the solution randomly.<br>
+     * <b>Must be done before using the solution index.</b>
+     * @param sol_index solution index to be inititiated
      */
-    public void insertNode(int[] left, int[] right){
-        operatorNode(left,right,  (a, b) -> a + b);
-    }
-
-    /**
-     * Combines two arrays, returning result. Acts as a removal of one subset to another, removing edges.
-     * formally right - left
-     * @param toRemove subset that will be removed
-     * @param source subset that will have contents of toRemove removed
-     */
-    public void removeNode(int[] toRemove, int[] source){
-        operatorNode(toRemove,source,  (a, b) -> a - b);
-    }
-
-
-    public void printInfo(){
-        System.out.println( "size " + solution.length + " " + Arrays.toString(solution));
-        System.out.println( "size " + solution_map.length + " " + Arrays.toString(solution_map));
-        System.out.println( "Evaluation : " + getEvaluator().getObjectiveValue() + " Infeasibility : " + getEvaluator().getUnaccountedElements());
-    }
-
-    /**
-     * Initialises the solution randomly
-     */
-    public void initialiseSolution(){
+    public void initialiseSolution(int sol_index){
         int index = 0;
+        // Initialise solution memory.
+        int[] solution = new int[data.get(NumSubsets)];
+        int[] solution_map = new int[data.get(NumElements)];
+        // Set evaluator for the solution
+        evaluators.add(sol_index,new SolutionEvaluator(this,solution,solution_map));
+
         for (int[] subset : subsets){
             double ran = rng.nextDouble();
             if(ran < RANDOM_INTIALISATION){
                 solution[index] = 1;
-                insertNode(subset,solution_map);
+                getEvaluator(sol_index).insertNode(subset,solution_map);
             }
             index++;
         }
         System.out.println( "size " + solution.length + " " + Arrays.toString(solution));
         System.out.println( "size " + solution_map.length + " " + Arrays.toString(solution_map));
 
-        getEvaluator().setObjectiveValue();
-        System.out.println( "Evaluation : " + getEvaluator().getObjectiveValue() + " Infeasibility : " + getEvaluator().getUnaccountedElements());
+
+        System.out.println( "Evaluation : " + getEvaluator(sol_index).getObjectiveValue() + " Infeasibility : "
+                + getEvaluator(sol_index).getUnaccountedElements());
+
+        // Set solution to arraylist memory
+        solutions.add(sol_index,solution);
+        solution_maps.add(sol_index,solution_map);
     }
 
 
@@ -228,9 +215,6 @@ public class MinSetProblem implements Problem {
                 line = reader.readLine();
             }
 
-            // Initialise solution memory.
-            solution = new int[data.get(NumSubsets)];
-            solution_map = new int[data.get(NumElements)];
         }  catch (IOException e) {
             e.printStackTrace();
         }

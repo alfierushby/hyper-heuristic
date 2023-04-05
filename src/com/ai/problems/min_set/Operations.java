@@ -10,15 +10,15 @@ public class Operations {
         this.problem = problem;
     }
 
-    public void bitFlip(int bit_index){
-        int bit = problem.getSolution()[bit_index];
+    public void bitFlip(int sol_index,int bit_index){
+        int bit = problem.getSolution(sol_index)[bit_index];
         if(bit==1)
             bit=0;
         else
             bit=1;
-        problem.getSolution()[bit_index] = bit;
+        problem.getSolution(sol_index)[bit_index] = bit;
         // Perform Delta evaluation on problem.
-        problem.getEvaluator().deltaObjectiveEvaluation(bit_index);
+        problem.getEvaluator(sol_index).deltaObjectiveEvaluation(bit_index);
     }
 
 }

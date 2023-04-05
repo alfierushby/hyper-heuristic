@@ -1,12 +1,27 @@
 package com.ai.problems.min_set;
 
+import java.util.function.IntBinaryOperator;
+
 import static com.ai.problems.min_set.enums.instance_reader.NumSubsets;
 
+/**
+ * Used for evaluating solutions, contains the brunt of the functions that has the purpose of
+ * calculating the objective value of the problem.
+ */
 public class SolutionEvaluator {
 
     // Values for determining objective value.
     private int objective_value, unaccounted_elements;
     private final MinSetProblem problem;
+    private final int[] solution, solution_map;
+
+    public int[] getSolution() {
+        return solution;
+    }
+
+    public int[] getSolutionMap() {
+        return solution_map;
+    }
 
     /**
      * @return objective value of solution
@@ -34,45 +49,99 @@ public class SolutionEvaluator {
         this.unaccounted_elements = unaccounted_elements;
     }
 
-    public SolutionEvaluator(MinSetProblem problem) {
+    public SolutionEvaluator(MinSetProblem problem, int[] solution, int[] solution_map) {
         this.problem = problem;
+        this.solution = solution;
+        this.solution_map=solution_map;
     }
 
-    ////////////////////////////////
-    // OBJECTIVE VALUE FUNCTIONS //
-    //////////////////////////////
+      ////////////////////////////
+     // SOLUTION MAP FUNCTIONS //
+    ////////////////////////////
+
+    /**
+     * Generalised function to be used by insert and removal of nodes for public use. Internal function.
+     * @param left left array, loops through to do an operation to the right array
+     * @param right left array acts upon right array
+     * @param operator operation that is executed on each '1' element in the left array to the right array
+     */
+    private void operatorNode(int[] left, int[] right, IntBinaryOperator operator){
+        int count =0;
+        for(int i : left){
+            if(i == 1){
+                int prev = right[count];
+                right[count] = operator.applyAsInt(right[count],1);
+                // Evaluate unaccounted elements. Add 1 if node made from >0 to 0.
+                if(prev>0&&right[count]==0){
+                    setUnaccountedElements(getUnaccountedElements()+1);
+                } else if(prev==0&&right[count]>0){
+                    setUnaccountedElements(getUnaccountedElements()-1);
+                }
+            }
+            count++;
+        }
+    }
+
+    /**
+     * Combines two arrays, returning result. Acts as an insertion of one subset to another, culminating edges.
+     * Formally left + right.
+     * @param left subset that will be inserted
+     * @param right subset that will be inserted to
+     */
+    public void insertNode(int[] left, int[] right){
+        operatorNode(left,right,  (a, b) -> a + b);
+    }
+
+    /**
+     * Combines two arrays, returning result. Acts as a removal of one subset to another, removing edges.
+     * formally right - left
+     * @param toRemove subset that will be removed
+     * @param source subset that will have contents of toRemove removed
+     */
+    public void removeNode(int[] toRemove, int[] source){
+        operatorNode(toRemove,source,  (a, b) -> a - b);
+    }
+
+
+      ///////////////////////////////
+     // OBJECTIVE VALUE FUNCTIONS //
+    ///////////////////////////////
 
     /**
      * Assumes specified input index has been flipped, and calculates new objective value via delta evaluation.
+     * Removes need to evaluate the solution's score. Infeasibility is evaluated naturally when inserting to the
+     * solution map. Only O(n) cost is insertion and removal to the solution map.
      * @param index Index of solution bit that has been flipped.
      */
     public void deltaObjectiveEvaluation(int index){
-        int bit = problem.getSolution()[index];
+        int bit = getSolution()[index];
         int[] subset = problem.getSubsets().get(index);
         int sum;
 
+
+        int prev_unaccount = getUnaccountedElements();
+
         if(bit==1){
             // Add to solution map.
-            problem.insertNode(subset, problem.getSolutionMap());
+            insertNode(subset, getSolutionMap());
             sum=1;
         }else {
-            // Bit is 0 so remove it from solution map (assuming it was flipped from 1)
-            problem.removeNode(subset, problem.getSolutionMap());
+            // Bit is 0 so remove it from solution map.
+            removeNode(subset, getSolutionMap());
             sum=-1;
         }
 
-        int prev_unaccount = getUnaccountedElements();
-        int new_unaccount = feasibleSolution();
+        int new_unaccount = getUnaccountedElements();
 
         if(new_unaccount!=0&& prev_unaccount==0){
-            // Make sure it was a previous feasible solution before adding extra cost of infeasible solution.
+            // If going from feasible to unfeasible, add extra cost of infeasible solution.
             sum+= problem.getData().get(NumSubsets) + new_unaccount;
         } else if (new_unaccount==0&&prev_unaccount!=0) {
-            // If going from unfeasible to feasible, take away constant cost, and the previous number of unaccounted
+            // If going from infeasible to feasible, take away constant cost, and the previous number of unaccounted
             // elements, to get the proper objective value.
             sum-= problem.getData().get(NumSubsets) + prev_unaccount;
         }else {
-            // If going from unfeasible to unfeasible, get difference.
+            // If going from infeasible to unfeasible, get difference in infeasible elements.
             sum+=  new_unaccount - prev_unaccount;
         }
         // Perform delta evaluation.
@@ -91,7 +160,7 @@ public class SolutionEvaluator {
      */
     public void setObjectiveValue(){
         int subsetTotal=0;
-        for(int subset : problem.getSolution()){
+        for(int subset : getSolution()){
             if(subset==1)
                 subsetTotal++;
         }
@@ -111,7 +180,7 @@ public class SolutionEvaluator {
      */
     private int feasibleSolution(){
         setUnaccountedElements(0);
-        for(int node : problem.getSolutionMap()){
+        for(int node : getSolutionMap()){
             if(node==0)
                 setUnaccountedElements(getUnaccountedElements()+1);
         }
