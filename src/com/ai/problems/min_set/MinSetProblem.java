@@ -1,17 +1,20 @@
 package com.ai.problems.min_set;
 
+import com.ai.HeuristicClasses;
 import com.ai.Problem;
-import com.ai.problems.min_set.enums.instance_reader;
+import com.ai.problems.min_set.enums.InstanceReader;
+import com.ai.problems.min_set.heuristics.BitMutation;
+import com.ai.problems.min_set.heuristics.Heuristic;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
-import java.util.function.IntBinaryOperator;
 
+import static com.ai.HeuristicClasses.Mutational;
 import static com.ai.problems.min_set.Config.BACKUP_SOLUTION_INDEX;
 import static com.ai.problems.min_set.Config.CURRENT_SOLUTION_INDEX;
-import static com.ai.problems.min_set.enums.instance_reader.*;
+import static com.ai.problems.min_set.enums.InstanceReader.*;
 
 
 public class MinSetProblem implements Problem {
@@ -30,9 +33,12 @@ public class MinSetProblem implements Problem {
     // General data of loaded instance.
     // Note that the assumption is that every unique instance counts *up to* the
     // number of elements, ie numbers 1..X inclusive.
-    private final Map<Enum<instance_reader>,Integer> data = new HashMap<>();
+    private final Map<Enum<InstanceReader>,Integer> data = new HashMap<>();
     private final ArrayList <SolutionEvaluator> evaluators = new ArrayList<>();
     private Operations operations;
+
+    private final Map<Enum<HeuristicClasses>, Heuristic[]> heurstics = new HashMap<>();
+
 
     public Operations getOperations() {
         return operations;
@@ -74,13 +80,18 @@ public class MinSetProblem implements Problem {
     /**
      * @return metadata of problem
      */
-    public Map<Enum<instance_reader>, Integer> getData() {
+    public Map<Enum<InstanceReader>, Integer> getData() {
         return data;
     }
 
-    public int getNumberOfElements(){
-        return getData().get(NumElements);
+    public int getNumberOfSubsets(){
+        return getData().get(NumSubsets);
     }
+
+    public Random getRng() {
+        return rng;
+    }
+
 
     /**
      * This gets the objective value of a solution. Note that it does not update the objective value.
@@ -90,10 +101,21 @@ public class MinSetProblem implements Problem {
     public int getObjectiveValue(int sol_index){
         return evaluators.get(sol_index).getObjectiveValue();
     }
+    @Override
+    public Heuristic[] getHeuristics(HeuristicClasses h_class) {
+        return heurstics.get(h_class);
+    }
 
     public MinSetProblem(Random rng) {
         this.rng = rng;
         setOperations(new Operations(this));
+
+        // Create Heuristic arrays for the Problem Domain
+        Heuristic[] mutations = {new BitMutation(this,getRng())};
+
+        // Add to Mapping
+        heurstics.put(Mutational,mutations);
+
     }
 
 
@@ -122,6 +144,11 @@ public class MinSetProblem implements Problem {
 
         solution_maps.set(to,new_map);
         solutions.set(to,new_sol);
+
+        // Evaluator doesn't exist for the solution index, so make one.
+        if(evaluators.size()<=to){
+            evaluators.add(to,new SolutionEvaluator(this,to));
+        }
     }
 
     /**
@@ -151,7 +178,6 @@ public class MinSetProblem implements Problem {
 
         // Initialise Objective Values
         getEvaluator(CURRENT_SOLUTION_INDEX).setObjectiveValue();
-        getEvaluator(BACKUP_SOLUTION_INDEX).setObjectiveValue();
 
 
         System.out.println( "size " + solution_data.length + " " + Arrays.toString(solution_data));

@@ -28,5 +28,9 @@ public abstract class Heuristic {
         this.rng = rng;
     }
 
-    public abstract void applyHeuristic();
+    /**
+     * @param sol Solution index to apply to
+     * @param save Solution where it saves
+     */
+    public abstract void applyHeuristic(int sol, int save);
 }

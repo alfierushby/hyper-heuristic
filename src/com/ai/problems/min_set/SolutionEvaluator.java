@@ -2,7 +2,7 @@ package com.ai.problems.min_set;
 
 import java.util.function.IntBinaryOperator;
 
-import static com.ai.problems.min_set.enums.instance_reader.NumSubsets;
+import static com.ai.problems.min_set.enums.InstanceReader.NumSubsets;
 
 /**
  * Used for evaluating solutions, contains the brunt of the functions that has the purpose of
