@@ -3,10 +3,7 @@ package com.ai.problems.min_set;
 import com.ai.HeuristicClasses;
 import com.ai.Problem;
 import com.ai.problems.min_set.enums.InstanceReader;
-import com.ai.problems.min_set.heuristics.BitMutation;
-import com.ai.problems.min_set.heuristics.DavisBitHC;
-import com.ai.problems.min_set.heuristics.Heuristic;
-import com.ai.problems.min_set.heuristics.SteepestDescentHC;
+import com.ai.problems.min_set.heuristics.*;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -24,12 +21,9 @@ public class MinSetProblem implements Problem {
 
     // CONSTANTS
     private final double RANDOM_INTIALISATION = .01;
-    private double depth_of_search = 1;
+    private double depth_of_search = .1;
     private double intensity_of_mutation = 0.7;
 
-    // Represented using Arrays as most efficient data structure with known size.
-    // Stores number of times a node has a connected edge.
-    private final ArrayList <int[]> solution_maps = new ArrayList<>();
     // Binary encoding of a solution, each index specifying the subset in subsets, 1 being selected, 0 not.
     private final ArrayList <Solution> solutions = new ArrayList<>();
     private final Random rng;
@@ -39,7 +33,6 @@ public class MinSetProblem implements Problem {
     // Note that the assumption is that every unique instance counts *up to* the
     // number of elements, ie numbers 1..X inclusive.
     private final Map<Enum<InstanceReader>,Integer> data = new HashMap<>();
-    private final ArrayList <SolutionEvaluator> evaluators = new ArrayList<>();
     private Operations operations;
 
     private final Map<Enum<HeuristicClasses>, Heuristic[]> heurstics = new HashMap<>();
@@ -58,14 +51,14 @@ public class MinSetProblem implements Problem {
      * @return a solution evaluator for the specific solution index
      */
     public SolutionEvaluator getEvaluator(int sol_index) {
-        return evaluators.get(sol_index);
+        return solutions.get(sol_index).getEvaluator();
     }
 
     /**
      * @return number of connected edges per node in array form
      */
     public int[] getSolutionMap(int index) {
-        return solution_maps.get(index);
+        return getSolution(index).getSolutionMap();
     }
 
     /**
@@ -104,7 +97,7 @@ public class MinSetProblem implements Problem {
      * @return objective value
      */
     public int getObjectiveValue(int sol_index){
-        return evaluators.get(sol_index).getObjectiveValue();
+        return getEvaluator(sol_index).getObjectiveValue();
     }
     @Override
     public Heuristic[] getHeuristics(HeuristicClasses h_class) {
@@ -147,16 +140,17 @@ public class MinSetProblem implements Problem {
         setOperations(new Operations(this));
 
         // Create Heuristic arrays for the Problem Domain
-        Heuristic[] mutations = {new BitMutation(this,getRng())};
-        Heuristic[] hill_climbing = {new DavisBitHC(this,getRng()),
-                                    new SteepestDescentHC(this,getRng())};
+        IterableHeuristic[] mutations = {new BitMutation(this,getRng())};
+        IterableHeuristic[] hill_climbing = {new DavisBitHC(this,getRng()),
+                                    new SteepestDescentHC(this,getRng()),
+                                    new FirstImprovementHC(this,getRng()),
+                                    new RandomMutationHC(this,getRng())};
 
         // Add to Mapping
         heurstics.put(Mutational,mutations);
         heurstics.put(Hill_Climbing,hill_climbing);
 
     }
-
 
       //////////////////////////////
      // INITIALISATION FUNCTIONS //
@@ -165,29 +159,24 @@ public class MinSetProblem implements Problem {
 
     public void printInfo(int index){
         System.out.println( "size " + solutions.get(index).getSolutionData().length + " " + Arrays.toString(solutions.get(index).getSolutionData()));
-        System.out.println( "size " + solution_maps.get(index).length + " " + Arrays.toString(solution_maps.get(index)));
+        System.out.println( "size " + getSolution(index).getSolutionMap().length + " " + Arrays.toString(getSolution(index).getSolutionMap()));
         System.out.println( "Evaluation : " + getObjectiveValue(index) + " Infeasibility : " + getEvaluator(index).getUnaccountedElements());
     }
 
-    private void createSolution(Solution solution, int[] solution_map, int sol_index){
+    private void insertSolution(Solution solution, int sol_index){
 
         // Set solution to arraylist memory
         solutions.add(sol_index,solution);
-        solution_maps.add(sol_index,solution_map);
-        evaluators.add(sol_index,new SolutionEvaluator(this,sol_index));
     }
 
     public void copySolution(int from, int to){
-        int[] new_map = getSolutionMap(from).clone();
         Solution new_sol = getSolution(from).clone();
 
-        solution_maps.set(to,new_map);
-        solutions.set(to,new_sol);
-
-        // Evaluator doesn't exist for the solution index, so make one.
-        if(evaluators.size()<=to){
-            evaluators.add(to,new SolutionEvaluator(this,to));
+        if(solutions.size()<=to){
+            System.out.println("Trying to copy solution to uninitialized memory!");
+            return;
         }
+        solutions.set(to,new_sol);
     }
 
     /**
@@ -197,30 +186,26 @@ public class MinSetProblem implements Problem {
     public void initialiseSolution(){
         int index = 0;
         // Initialise solution memory.
-        Solution solution = new Solution(data.get(NumSubsets));
-        int[] solution_map = new int[data.get(NumElements)];
+        Solution solution = new Solution(data.get(NumSubsets),data.get(NumElements));
+        solution.getEvaluator().setObjectiveValue();
 
         // Create current solution:
-        createSolution(solution,solution_map,CURRENT_SOLUTION_INDEX);
+        insertSolution(solution,CURRENT_SOLUTION_INDEX);
         boolean[] solution_data = solution.getSolutionData();
 
         for (int[] subset : subsets){
             double ran = rng.nextDouble();
             if(ran < RANDOM_INTIALISATION){
                 solution_data[index] = true;
-                getEvaluator(CURRENT_SOLUTION_INDEX).insertNode(subset,solution_map);
+                getOperations().insertNode(subset,solution);
             }
             index++;
         }
 
-        createSolution(solution.clone(),solution_map.clone(),BACKUP_SOLUTION_INDEX);
+        insertSolution(solution.clone(),BACKUP_SOLUTION_INDEX);
 
         // Initialise Objective Values
         getEvaluator(CURRENT_SOLUTION_INDEX).setObjectiveValue();
-
-
-        System.out.println( "size " + solution_data.length + " " + Arrays.toString(solution_data));
-        System.out.println( "size " + solution_map.length + " " + Arrays.toString(solution_map));
 
         System.out.println( "Evaluation : " + getEvaluator(CURRENT_SOLUTION_INDEX).getObjectiveValue() + " Infeasibility : "
                 + getEvaluator(CURRENT_SOLUTION_INDEX).getUnaccountedElements());

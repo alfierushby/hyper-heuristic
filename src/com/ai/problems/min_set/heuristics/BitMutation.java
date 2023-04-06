@@ -4,7 +4,7 @@ import com.ai.problems.min_set.MinSetProblem;
 
 import java.util.Random;
 
-public class BitMutation extends Heuristic {
+public class BitMutation extends IterableHeuristic {
 
     public BitMutation(MinSetProblem problem, Random rng) {
         super(problem,rng);

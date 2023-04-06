@@ -4,11 +4,7 @@ import com.ai.problems.min_set.MinSetProblem;
 
 import java.util.ArrayList;
 import java.util.Random;
-
-import static com.ai.problems.min_set.Config.BACKUP_SOLUTION_INDEX;
-import static com.ai.problems.min_set.Config.CURRENT_SOLUTION_INDEX;
-
-public class DavisBitHC extends Heuristic {
+public class DavisBitHC extends IterableHeuristic {
 
     public DavisBitHC(MinSetProblem problem, Random rng) {
         super(problem,rng);
@@ -22,7 +18,7 @@ public class DavisBitHC extends Heuristic {
         }
         int len = to_shuffle.size();
         for(int i = 0; i<len; i++){
-            int ran = getRng().nextInt(len);
+            int ran = getRng().nextInt(0,len);
             int temp_v = to_shuffle.get(i);
             to_shuffle.set(i,to_shuffle.get(ran));
             to_shuffle.set(ran, temp_v);
@@ -39,7 +35,7 @@ public class DavisBitHC extends Heuristic {
 
                 tmpEval = problem.getObjectiveValue(sol);
 
-                if(tmpEval < bestEval){
+                if(tmpEval <= bestEval){
                     bestEval = tmpEval;
                 } else {
                     problem.getOperations().bitFlip(perm.get(j),sol); // Revert

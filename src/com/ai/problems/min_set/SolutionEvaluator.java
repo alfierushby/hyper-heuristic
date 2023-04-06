@@ -1,5 +1,7 @@
 package com.ai.problems.min_set;
 
+import javax.swing.*;
+import java.util.Arrays;
 import java.util.function.IntBinaryOperator;
 
 import static com.ai.problems.min_set.enums.InstanceReader.NumSubsets;
@@ -10,16 +12,15 @@ import static com.ai.problems.min_set.enums.InstanceReader.NumSubsets;
  */
 public class SolutionEvaluator {
 
-    // Values for determining objective value.
-    private final MinSetProblem problem;
-    int solution_index;
+    private final Solution solution;
+    private int prev_unaccount = 0;
 
     public Solution getSolution() {
-        return problem.getSolution(solution_index);
+        return solution;
     }
 
     public int[] getSolutionMap() {
-        return problem.getSolutionMap(solution_index);
+        return getSolution().getSolutionMap();
     }
 
     /**
@@ -48,60 +49,19 @@ public class SolutionEvaluator {
         getSolution().setUnaccountedElements(unaccounted_elements);
     }
 
-    public SolutionEvaluator(MinSetProblem problem, int solution_index) {
-        this.problem = problem;
-        this.solution_index = solution_index;
+    public SolutionEvaluator(Solution solution) {
+        this.solution = solution;
     }
 
-      ////////////////////////////
-     // SOLUTION MAP FUNCTIONS //
-    ////////////////////////////
-
-    /**
-     * Generalised function to be used by insert and removal of nodes for public use. Internal function.
-     * @param left left array, loops through to do an operation to the right array
-     * @param right left array acts upon right array
-     * @param operator operation that is executed on each '1' element in the left array to the right array
-     */
-    private void operatorNode(int[] left, int[] right, IntBinaryOperator operator){
-        int count =0;
-        for(int i : left){
-            if(i == 1){
-                int prev = right[count];
-                right[count] = operator.applyAsInt(right[count],1);
-                // Evaluate unaccounted elements. Add 1 if node made from >0 to 0.
-                if(prev>0&&right[count]==0){
-                    setUnaccountedElements(getUnaccountedElements()+1);
-                } else if(prev==0&&right[count]>0){
-                    setUnaccountedElements(getUnaccountedElements()-1);
-                }
-            }
-            count++;
-        }
+    public int getPrevUnaccount() {
+        return prev_unaccount;
     }
 
-    /**
-     * Combines two arrays, returning result. Acts as an insertion of one subset to another, culminating edges.
-     * Formally left + right.
-     * @param left subset that will be inserted
-     * @param right subset that will be inserted to
-     */
-    public void insertNode(int[] left, int[] right){
-        operatorNode(left,right,  (a, b) -> a + b);
+    public boolean setPrevUnaccount(int prev_unaccount) {
+        this.prev_unaccount = prev_unaccount;
+        return true;
     }
-
-    /**
-     * Combines two arrays, returning result. Acts as a removal of one subset to another, removing edges.
-     * formally right - left
-     * @param toRemove subset that will be removed
-     * @param source subset that will have contents of toRemove removed
-     */
-    public void removeNode(int[] toRemove, int[] source){
-        operatorNode(toRemove,source,  (a, b) -> a - b);
-    }
-
-
-      ///////////////////////////////
+    ///////////////////////////////
      // OBJECTIVE VALUE FUNCTIONS //
     ///////////////////////////////
 
@@ -113,19 +73,14 @@ public class SolutionEvaluator {
      */
     public void deltaObjectiveEvaluation(int index){
         boolean bit = getSolution().getSolutionData()[index];
-        int[] subset = problem.getSubsets().get(index);
+        int[] subset = getSolution().getSolutionMap();
         int sum;
-
-
-        int prev_unaccount = getUnaccountedElements();
 
         if(bit){
             // Add to solution map.
-            insertNode(subset, getSolutionMap());
             sum=1;
         }else {
             // Bit is 0 so remove it from solution map.
-            removeNode(subset, getSolutionMap());
             sum=-1;
         }
 
@@ -133,17 +88,18 @@ public class SolutionEvaluator {
 
         if(new_unaccount!=0&& prev_unaccount==0){
             // If going from feasible to unfeasible, add extra cost of infeasible solution.
-            sum+= problem.getData().get(NumSubsets) + new_unaccount;
+            sum+= getSolution().getSolutionData().length + new_unaccount;
         } else if (new_unaccount==0&&prev_unaccount!=0) {
             // If going from infeasible to feasible, take away constant cost, and the previous number of unaccounted
             // elements, to get the proper objective value.
-            sum-= problem.getData().get(NumSubsets) + prev_unaccount;
+            sum-= getSolution().getSolutionData().length + prev_unaccount;
         }else {
             // If going from infeasible to unfeasible, get difference in infeasible elements.
             sum+=  new_unaccount - prev_unaccount;
         }
         // Perform delta evaluation.
         incrementObjectiveValue(sum);
+        setPrevUnaccount(new_unaccount);
 
     }
 
@@ -168,7 +124,7 @@ public class SolutionEvaluator {
         } else {
             // Include subsetTotal and unaccounted elements, thus shows improvement in two important areas.
             // Always worse than the worse feasible solution.
-            setObjectiveValue(  problem.getData().get(NumSubsets) + subsetTotal + getUnaccountedElements() );
+            setObjectiveValue(  getSolution().getSolutionData().length + subsetTotal + getUnaccountedElements() );
         }
     }
 
@@ -182,6 +138,7 @@ public class SolutionEvaluator {
             if(node==0)
                 setUnaccountedElements(getUnaccountedElements()+1);
         }
+        setPrevUnaccount(getUnaccountedElements());
         return getUnaccountedElements();
     }
 

@@ -2,6 +2,7 @@ package com.ai;
 
 import com.ai.problems.min_set.MinSetProblem;
 import com.ai.problems.min_set.heuristics.Heuristic;
+import com.ai.problems.min_set.heuristics.IterableHeuristic;
 
 import java.util.Random;
 
@@ -12,14 +13,15 @@ public class Main {
     public static void main(String[] args) {
         Random ran = new Random(123456789);
 
-        Problem problem = new MinSetProblem(ran);
+        MinSetProblem problem = new MinSetProblem(ran);
         problem.loadInstance("src/test_instances/d4_2047_495.txt");
         problem.initialiseSolution();
-        Heuristic[] mutation = problem.getHeuristics(Mutational);
-        Heuristic[] hill_climbing = problem.getHeuristics(Hill_Climbing);
-        for(int i =0; i<10; i++){
+        IterableHeuristic[] mutation = (IterableHeuristic[]) problem.getHeuristics(Mutational);
+        IterableHeuristic[] hill_climbing = (IterableHeuristic[]) problem.getHeuristics(Hill_Climbing);
+        problem.printInfo(CURRENT_SOLUTION_INDEX);
+        for(int i =0; i<1; i++){
             System.out.println("///////////////////////////////////");
-            mutation[0].applyHeuristic(CURRENT_SOLUTION_INDEX,BACKUP_SOLUTION_INDEX);
+          //  mutation[0].applyHeuristic(CURRENT_SOLUTION_INDEX,BACKUP_SOLUTION_INDEX);
             hill_climbing[0].applyHeuristic(CURRENT_SOLUTION_INDEX,BACKUP_SOLUTION_INDEX);
             problem.copySolution(BACKUP_SOLUTION_INDEX,CURRENT_SOLUTION_INDEX);
             problem.printInfo(CURRENT_SOLUTION_INDEX);
