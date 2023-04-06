@@ -13,6 +13,7 @@ public class Operations {
         this.problem = problem;
     }
 
+
     /**
      * @param bit_index Bit index to perform the bit flip in sol_index
      * @param sol_index The solution to perform the bit flip
@@ -20,13 +21,25 @@ public class Operations {
      */
     public void bitFlip(int bit_index, int sol_index, int save_index){
         // Perform a copy.
-        problem.copySolution(sol_index,save_index);
+        if(sol_index!=save_index){
+            problem.copySolution(sol_index,save_index);
+        }
 
         boolean bit = problem.getSolution(save_index).getSolutionData()[bit_index];
 
         problem.getSolution(save_index).getSolutionData()[bit_index]=!bit;
         // Perform Delta evaluation on solution.
         problem.getEvaluator(save_index).deltaObjectiveEvaluation(bit_index);
+    }
+
+
+    /**
+     * @param bit_index Bit index to perform the bit flip in sol_index
+     * @param sol_index The solution to perform the bit flip, saved there
+     */
+    public void bitFlip(int bit_index, int sol_index){
+        // Perform a copy.
+        bitFlip(bit_index,sol_index,sol_index);
     }
 
 }

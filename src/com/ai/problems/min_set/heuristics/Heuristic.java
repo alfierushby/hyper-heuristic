@@ -10,6 +10,8 @@ import java.util.Random;
 public abstract class Heuristic {
     MinSetProblem problem;
     Random rng;
+    int iterations;
+    boolean skippable = true;
 
     public MinSetProblem getProblem() {
         return problem;
@@ -29,8 +31,24 @@ public abstract class Heuristic {
     }
 
     /**
+     * The heuristic single iteration to be executed.
+     * @param save Solution index to apply to
+     */
+    public abstract void applyHeuristicSingle(int save);
+
+    /**
+     * This applies a heuristic X times
      * @param sol Solution index to apply to
      * @param save Solution where it saves
      */
-    public abstract void applyHeuristic(int sol, int save);
+    public void applyHeuristic(int sol, int save){
+        int prev;
+        getProblem().copySolution(sol,save);
+        for(int i = 0; i< iterations; i++){
+            prev = getProblem().getObjectiveValue(save);
+            applyHeuristicSingle(save);
+            if(prev>=getProblem().getObjectiveValue(save)&&skippable)
+                return;
+        }
+    };
 }

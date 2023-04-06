@@ -4,13 +4,16 @@ import com.ai.HeuristicClasses;
 import com.ai.Problem;
 import com.ai.problems.min_set.enums.InstanceReader;
 import com.ai.problems.min_set.heuristics.BitMutation;
+import com.ai.problems.min_set.heuristics.DavisBitHC;
 import com.ai.problems.min_set.heuristics.Heuristic;
+import com.ai.problems.min_set.heuristics.SteepestDescentHC;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
+import static com.ai.HeuristicClasses.Hill_Climbing;
 import static com.ai.HeuristicClasses.Mutational;
 import static com.ai.problems.min_set.Config.BACKUP_SOLUTION_INDEX;
 import static com.ai.problems.min_set.Config.CURRENT_SOLUTION_INDEX;
@@ -20,7 +23,9 @@ import static com.ai.problems.min_set.enums.InstanceReader.*;
 public class MinSetProblem implements Problem {
 
     // CONSTANTS
-    private final double RANDOM_INTIALISATION = .2;
+    private final double RANDOM_INTIALISATION = .01;
+    private double depth_of_search = 1;
+    private double intensity_of_mutation = 0.7;
 
     // Represented using Arrays as most efficient data structure with known size.
     // Stores number of times a node has a connected edge.
@@ -106,15 +111,49 @@ public class MinSetProblem implements Problem {
         return heurstics.get(h_class);
     }
 
+    private int caseConvertion(double val){
+        if(val<0.2)
+            return 1;
+        else if (val<0.4)
+            return 2;
+        else if (val<0.6)
+            return 3;
+        else if (val<0.8)
+            return 4;
+        else if (val<1)
+            return 5;
+        else
+            return 6;
+    }
+
+    /**
+     * Converts depth of search value to number of iterations.
+     * @return the corresponding iteration count to be done in hill climbing methods.
+     */
+    public int getDepthOfSearch() {
+        return caseConvertion(depth_of_search);
+    }
+
+    /**
+     * Converts depth of search value to number of mutations.
+     * @return the corresponding iteration count to be done in mutation methods.
+     */
+    public int getIntensityOfMutation() {
+        return caseConvertion(intensity_of_mutation);
+    }
+
     public MinSetProblem(Random rng) {
         this.rng = rng;
         setOperations(new Operations(this));
 
         // Create Heuristic arrays for the Problem Domain
         Heuristic[] mutations = {new BitMutation(this,getRng())};
+        Heuristic[] hill_climbing = {new DavisBitHC(this,getRng()),
+                                    new SteepestDescentHC(this,getRng())};
 
         // Add to Mapping
         heurstics.put(Mutational,mutations);
+        heurstics.put(Hill_Climbing,hill_climbing);
 
     }
 

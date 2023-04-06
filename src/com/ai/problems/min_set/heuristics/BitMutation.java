@@ -8,13 +8,15 @@ public class BitMutation extends Heuristic {
 
     public BitMutation(MinSetProblem problem, Random rng) {
         super(problem,rng);
+        iterations = getProblem().getIntensityOfMutation();
+        skippable= false;
     }
 
     @Override
-    public void applyHeuristic(int sol, int save) {
+    public void applyHeuristicSingle(int sol) {
         // select a random bit in the solution
         int bitIndex = getRng().nextInt(problem.getNumberOfSubsets());
 
-        getProblem().getOperations().bitFlip(bitIndex,sol,save);
+        getProblem().getOperations().bitFlip(bitIndex,sol);
     }
 }
