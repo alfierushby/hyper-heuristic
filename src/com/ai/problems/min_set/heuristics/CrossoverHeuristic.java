@@ -3,6 +3,7 @@ package com.ai.problems.min_set.heuristics;
 import com.ai.problems.min_set.MinSetProblem;
 import com.ai.problems.min_set.Solution;
 
+import java.util.Arrays;
 import java.util.Random;
 
 public abstract class CrossoverHeuristic extends Heuristic {
@@ -32,10 +33,14 @@ public abstract class CrossoverHeuristic extends Heuristic {
      */
     public  void applyHeuristic(int parent1Index, int parent2Index, int childIndex){
         Solution[] children = applyHeuristicSingle(parent1Index,parent2Index);
-        if(children[0].getEvaluator().getObjectiveValue()<children[1].getEvaluator().getObjectiveValue())
+        if(children[0].getEvaluator().getObjectiveValue()<children[1].getEvaluator().getObjectiveValue()){
+            System.out.println("Chose child 0");
             getProblem().setSolution(children[0],childIndex);
-        else
+        }
+        else{
+            System.out.println("Chose child1");
             getProblem().setSolution(children[1],childIndex);
+        }
     }
 
 }

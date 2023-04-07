@@ -4,6 +4,7 @@ import com.ai.problems.min_set.MinSetProblem;
 import com.ai.problems.min_set.Solution;
 import com.ai.problems.min_set.SolutionEvaluator;
 
+import java.util.Arrays;
 import java.util.Random;
 
 public class UniformXO extends CrossoverHeuristic {
@@ -19,6 +20,7 @@ public class UniformXO extends CrossoverHeuristic {
         for(int i =0; i<problem.getNumberOfSubsets(); i++){
             double rand = getRng().nextDouble();
             if(rand<=0.5){
+                System.out.print("hih " + i);
                 problem.getOperations().exchangeBits(child1,child2,i);
             }
         }

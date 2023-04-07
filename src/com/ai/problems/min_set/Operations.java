@@ -17,20 +17,8 @@ public class Operations {
     }
 
 
-    /**
-     * @param bit_index Bit index to perform the bit flip in sol_index
-     * @param sol_index The solution to perform the bit flip
-     * @param save_index Where the solution is saved.
-     */
-    public void bitFlip(int bit_index, int sol_index, int save_index){
-        // Perform a copy.
-        if(sol_index!=save_index){
-            problem.copySolution(sol_index,save_index);
-        }
-
-        boolean bit = !problem.getSolution(save_index).getSolutionData()[bit_index];
-        Solution solution = problem.getSolution(save_index);
-
+    private void pureBitFlip(int bit_index, Solution solution){
+        boolean bit = !solution.getSolutionData()[bit_index];
         solution.getSolutionData()[bit_index]=bit;
 
         if(bit){
@@ -44,6 +32,24 @@ public class Operations {
         // Perform Delta evaluation on solution.
         solution.getEvaluator().deltaObjectiveEvaluation(bit_index);
     }
+
+    /**
+     * @param bit_index Bit index to perform the bit flip in sol_index
+     * @param sol_index The solution to perform the bit flip
+     * @param save_index Where the solution is saved.
+     */
+    public void bitFlip(int bit_index, int sol_index, int save_index){
+        // Perform a copy.
+        if(sol_index!=save_index){
+            problem.copySolution(sol_index,save_index);
+        }
+
+        Solution solution = problem.getSolution(save_index);
+
+        // Perform bitflip on solution
+        pureBitFlip(bit_index,solution);
+    }
+
 
 
     /**
@@ -67,11 +73,8 @@ public class Operations {
 
         if(left_prev != right_prev){
             // Different, so equivalent to a bit flip on both.
-            left.getSolutionData()[bit_index] = right_prev;
-            right.getSolutionData()[bit_index] = left_prev;
-
-            left.getEvaluator().deltaObjectiveEvaluation(bit_index);
-            right.getEvaluator().deltaObjectiveEvaluation(bit_index);
+            pureBitFlip(bit_index,left);
+            pureBitFlip(bit_index,right);
         }
 
     }
@@ -98,10 +101,8 @@ public class Operations {
                 map_right[count] = operator.applyAsInt(map_right[count],1);
                 // Evaluate unaccounted elements. Add 1 if node made from >0 to 0.
                 if(prev>0&&map_right[count]==0){
-                  //  System.out.println("hi?" + eval.getUnaccountedElements());
                     eval.setUnaccountedElements(eval.getUnaccountedElements()+1);
                 } else if(prev==0&&map_right[count]>0){
-                    //System.out.println("lol?" + eval.getUnaccountedElements());
                     eval.setUnaccountedElements(eval.getUnaccountedElements()-1);
                 }
             }

@@ -10,8 +10,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
-import static com.ai.HeuristicClasses.Hill_Climbing;
-import static com.ai.HeuristicClasses.Mutational;
+import static com.ai.HeuristicClasses.*;
 import static com.ai.problems.min_set.Config.BACKUP_SOLUTION_INDEX;
 import static com.ai.problems.min_set.Config.CURRENT_SOLUTION_INDEX;
 import static com.ai.problems.min_set.enums.InstanceReader.*;
@@ -145,10 +144,12 @@ public class MinSetProblem implements Problem {
                                     new SteepestDescentHC(this,getRng()),
                                     new FirstImprovementHC(this,getRng()),
                                     new RandomMutationHC(this,getRng())};
+        CrossoverHeuristic[] crossovers = {new UniformXO(this,getRng())};
 
         // Add to Mapping
         heurstics.put(Mutational,mutations);
         heurstics.put(Hill_Climbing,hill_climbing);
+        heurstics.put(Crossover,crossovers);
 
     }
 
