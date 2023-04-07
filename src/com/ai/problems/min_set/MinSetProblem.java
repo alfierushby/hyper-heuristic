@@ -163,10 +163,31 @@ public class MinSetProblem implements Problem {
         System.out.println( "Evaluation : " + getObjectiveValue(index) + " Infeasibility : " + getEvaluator(index).getUnaccountedElements());
     }
 
-    private void insertSolution(Solution solution, int sol_index){
+    /**
+     * This adds the solution, not replacing the existing solution but shifting it.
+     * @param solution Solution to added.
+     * @param sol_index Index it will be set, shifts existing solution in location.
+     */
+    public void insertSolution(Solution solution, int sol_index){
 
         // Set solution to arraylist memory
         solutions.add(sol_index,solution);
+    }
+
+    /**
+     * This either replaces a solution in memory, or adds it if no memory exists.
+     * Avoids adding when not needed. Use when you don't want unexpected shifting of memory.
+     * @param solution Solution to set.
+     * @param sol_index Index it will be set, no shifting.
+     */
+    public void setSolution(Solution solution, int sol_index){
+
+        if(sol_index>solutions.size()){
+            insertSolution(solution,sol_index);
+            return;
+        }
+        // Set solution to arraylist memory
+        solutions.set(sol_index,solution);
     }
 
     public void copySolution(int from, int to){

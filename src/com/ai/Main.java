@@ -14,7 +14,7 @@ public class Main {
         Random ran = new Random(123456789);
 
         MinSetProblem problem = new MinSetProblem(ran);
-        problem.loadInstance("src/test_instances/d4_2047_495.txt");
+        problem.loadInstance("src/test_instances/d1_50_500.txt");
         problem.initialiseSolution();
         IterableHeuristic[] mutation = (IterableHeuristic[]) problem.getHeuristics(Mutational);
         IterableHeuristic[] hill_climbing = (IterableHeuristic[]) problem.getHeuristics(Hill_Climbing);

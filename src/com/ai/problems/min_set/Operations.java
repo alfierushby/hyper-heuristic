@@ -56,15 +56,23 @@ public class Operations {
     }
 
     /**
-     * Swaps the specified bit of two solutions
+     * Swaps the specified bit of two solutions. Implements Delta Evaluation.
      * @param left Left solution
      * @param right Right solution
-     * @param bitIndex The bit to swap
+     * @param bit_index The bit to swap
      */
-    public void exchangeBits(Solution left, Solution right, int bitIndex){
-        boolean tmp = left.getSolutionData()[bitIndex];
-        left.getSolutionData()[bitIndex] = right.getSolutionData()[bitIndex];
-        right.getSolutionData()[bitIndex] = tmp;
+    public void exchangeBits(Solution left, Solution right, int bit_index){
+        boolean left_prev = left.getSolutionData()[bit_index];
+        boolean right_prev = right.getSolutionData()[bit_index];
+
+        if(left_prev != right_prev){
+            // Different, so equivalent to a bit flip on both.
+            left.getSolutionData()[bit_index] = right_prev;
+            right.getSolutionData()[bit_index] = left_prev;
+
+            left.getEvaluator().deltaObjectiveEvaluation(bit_index);
+            right.getEvaluator().deltaObjectiveEvaluation(bit_index);
+        }
 
     }
 

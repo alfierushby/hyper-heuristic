@@ -11,14 +11,8 @@ public class UniformXO extends CrossoverHeuristic {
     public UniformXO(MinSetProblem problem, Random random) {
         super(problem, random);
     }
-
     @Override
-    public void applyHeuristic(int sol_index, int save_index) {
-
-    }
-
-    @Override
-    public void applyHeuristic(int parent1Index, int parent2Index, int childIndex) {
+    public Solution[] applyHeuristicSingle(int parent1Index, int parent2Index) {
         Solution child1 = problem.getSolution(parent1Index).clone();
         Solution child2 = problem.getSolution(parent2Index).clone();
 
@@ -28,7 +22,7 @@ public class UniformXO extends CrossoverHeuristic {
                 problem.getOperations().exchangeBits(child1,child2,i);
             }
         }
-
+        return new Solution[]{child1,child2};
     }
 
 }
