@@ -1,6 +1,7 @@
 package com.ai;
 
 import com.ai.problems.min_set.MinSetProblem;
+import com.ai.problems.min_set.Solution;
 import com.ai.problems.min_set.heuristics.CrossoverHeuristic;
 import com.ai.problems.min_set.heuristics.Heuristic;
 import com.ai.problems.min_set.heuristics.IterableHeuristic;
@@ -27,11 +28,18 @@ public class Main {
 
         for(int i =0; i<1; i++){
             System.out.println("///////////////////////////////////");
-          //  mutation[0].applyHeuristic(CURRENT_SOLUTION_INDEX,BACKUP_SOLUTION_INDEX);
+            //mutation[0].applyHeuristic(CURRENT_SOLUTION_INDEX,BACKUP_SOLUTION_INDEX);
             crossover[0].applyHeuristic(CURRENT_SOLUTION_INDEX,BACKUP_SOLUTION_INDEX,CURRENT_SOLUTION_INDEX);
-            problem.printInfo(CURRENT_SOLUTION_INDEX);
-            problem.printInfo(BACKUP_SOLUTION_INDEX);
+//            problem.getOperations().exchangeBits(problem.getSolution(CURRENT_SOLUTION_INDEX),
+//                    problem.getSolution(BACKUP_SOLUTION_INDEX),1);
+             problem.printInfo(CURRENT_SOLUTION_INDEX);
+             problem.printInfo(BACKUP_SOLUTION_INDEX);
             System.out.println("///////////////////////////////////");
         }
+        Solution test = new Solution(problem.getSolution(CURRENT_SOLUTION_INDEX).getSolutionData(),
+                problem.getSolutionMap(CURRENT_SOLUTION_INDEX));
+        problem.insertSolution(test,2);
+        problem.printInfo(2);
+
     }
 }

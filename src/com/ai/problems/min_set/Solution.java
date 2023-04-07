@@ -4,11 +4,18 @@ package com.ai.problems.min_set;
  * A solution class for min set. Contains its objective and evaluator.
  */
 public class Solution implements Cloneable {
-    private int objective_value, unaccounted_elements;
+    private int objective_value, unaccounted_elements, prev_unaccount=0;
     private boolean[] solution;
     private int[] solution_map;
     private SolutionEvaluator evaluator;
 
+    public int getPrevUnaccount() {
+        return prev_unaccount;
+    }
+
+    public void setPrevUnaccount(int prev_unaccount) {
+        this.prev_unaccount = prev_unaccount;
+    }
 
     public int getObjectiveValue() {
         return objective_value;
@@ -50,6 +57,7 @@ public class Solution implements Cloneable {
         this.solution_map = map;
         this.solution = solution;
         this.evaluator = new SolutionEvaluator(this);
+        evaluator.setObjectiveValue();
     }
 
     @Override
@@ -59,7 +67,6 @@ public class Solution implements Cloneable {
             clone.solution = solution.clone();
             clone.solution_map = solution_map.clone();
             clone.setEvaluator(new SolutionEvaluator(clone));
-            clone.getEvaluator().setPrevUnaccount(getEvaluator().getPrevUnaccount());
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();

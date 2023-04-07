@@ -13,7 +13,6 @@ import static com.ai.problems.min_set.enums.InstanceReader.NumSubsets;
 public class SolutionEvaluator {
 
     private final Solution solution;
-    private int prev_unaccount = 0;
 
     public Solution getSolution() {
         return solution;
@@ -54,12 +53,11 @@ public class SolutionEvaluator {
     }
 
     public int getPrevUnaccount() {
-        return prev_unaccount;
+        return getSolution().getPrevUnaccount();
     }
 
-    public boolean setPrevUnaccount(int prev_unaccount) {
-        this.prev_unaccount = prev_unaccount;
-        return true;
+    public void setPrevUnaccount(int prev_unaccount) {
+        getSolution().setPrevUnaccount(prev_unaccount);
     }
     ///////////////////////////////
      // OBJECTIVE VALUE FUNCTIONS //
@@ -86,16 +84,16 @@ public class SolutionEvaluator {
 
         int new_unaccount = getUnaccountedElements();
 
-        if(new_unaccount!=0&& prev_unaccount==0){
+        if(new_unaccount!=0&& getPrevUnaccount()==0){
             // If going from feasible to unfeasible, add extra cost of infeasible solution.
             sum+= getSolution().getSolutionData().length + new_unaccount;
-        } else if (new_unaccount==0&&prev_unaccount!=0) {
+        } else if (new_unaccount==0&&getPrevUnaccount()!=0) {
             // If going from infeasible to feasible, take away constant cost, and the previous number of unaccounted
             // elements, to get the proper objective value.
-            sum-= getSolution().getSolutionData().length + prev_unaccount;
+            sum-= getSolution().getSolutionData().length + getPrevUnaccount();
         }else {
             // If going from infeasible to unfeasible, get difference in infeasible elements.
-            sum+=  new_unaccount - prev_unaccount;
+            sum+=  new_unaccount - getPrevUnaccount();
         }
         // Perform delta evaluation.
         incrementObjectiveValue(sum);

@@ -224,10 +224,11 @@ public class MinSetProblem implements Problem {
             index++;
         }
 
-        insertSolution(solution.clone(),BACKUP_SOLUTION_INDEX);
-
         // Initialise Objective Values
         getEvaluator(CURRENT_SOLUTION_INDEX).setObjectiveValue();
+
+        insertSolution(solution.clone(),BACKUP_SOLUTION_INDEX);
+
 
         System.out.println( "Evaluation : " + getEvaluator(CURRENT_SOLUTION_INDEX).getObjectiveValue() + " Infeasibility : "
                 + getEvaluator(CURRENT_SOLUTION_INDEX).getUnaccountedElements());
