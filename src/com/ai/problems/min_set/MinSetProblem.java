@@ -19,7 +19,7 @@ import static com.ai.problems.min_set.enums.InstanceReader.*;
 public class MinSetProblem implements Problem {
 
     // CONSTANTS
-    private final double RANDOM_INTIALISATION = .01;
+    private final double RANDOM_INTIALISATION = .2;
     private double depth_of_search = .1;
     private double intensity_of_mutation = 0.7;
 
@@ -144,7 +144,9 @@ public class MinSetProblem implements Problem {
                                     new SteepestDescentHC(this,getRng()),
                                     new FirstImprovementHC(this,getRng()),
                                     new RandomMutationHC(this,getRng())};
-        CrossoverHeuristic[] crossovers = {new UniformXO(this,getRng())};
+        CrossoverHeuristic[] crossovers = {new UniformXO(this,getRng()),
+                                    new Uniform2Point(this,getRng()),
+                                    new Uniform1Point(this,getRng())};
 
         // Add to Mapping
         heurstics.put(Mutational,mutations);
@@ -209,7 +211,6 @@ public class MinSetProblem implements Problem {
         int index = 0;
         // Initialise solution memory.
         Solution solution = new Solution(data.get(NumSubsets),data.get(NumElements));
-        solution.getEvaluator().setObjectiveValue();
 
         // Create current solution:
         insertSolution(solution,CURRENT_SOLUTION_INDEX);
