@@ -26,8 +26,8 @@ public abstract class Heuristic {
 
     /**
      * This applies a heuristic, generic version.
-     * @param sol Solution index to apply to
-     * @param save Solution where it saves
+     * @param sol_index Solution index to apply to
+     * @param save_index Solution index where it saves
      */
-    public abstract void applyHeuristic(int sol, int save);
+    public abstract void applyHeuristic(int sol_index, int save_index);
 }

@@ -27,18 +27,18 @@ public class DavisBitHC extends IterableHeuristic {
         return to_shuffle;
     }
 
-    public void applyHeuristicSingle(int sol) {
-        int bestEval = problem.getObjectiveValue(sol), tmpEval;
+    public void applyHeuristicSingle(int sol_index) {
+        int bestEval = problem.getObjectiveValue(sol_index), tmpEval;
         ArrayList<Integer> perm = createRandomPermutation();
             for(int j = 0; j < problem.getNumberOfSubsets(); j++){
-                problem.getOperations().bitFlip(perm.get(j),sol);
+                problem.getOperations().bitFlip(perm.get(j),sol_index);
 
-                tmpEval = problem.getObjectiveValue(sol);
+                tmpEval = problem.getObjectiveValue(sol_index);
 
                 if(tmpEval <= bestEval){
                     bestEval = tmpEval;
                 } else {
-                    problem.getOperations().bitFlip(perm.get(j),sol); // Revert
+                    problem.getOperations().bitFlip(perm.get(j),sol_index); // Revert
                 }
             }
     }

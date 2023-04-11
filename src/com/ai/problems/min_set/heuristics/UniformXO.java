@@ -13,9 +13,9 @@ public class UniformXO extends CrossoverHeuristic {
         super(problem, random);
     }
     @Override
-    public Solution[] applyHeuristicSingle(int parent1Index, int parent2Index) {
-        Solution child1 = problem.getSolution(parent1Index).clone();
-        Solution child2 = problem.getSolution(parent2Index).clone();
+    public Solution[] applyHeuristicSingle(int parent1_index, int parent2_index) {
+        Solution child1 = problem.getSolution(parent1_index).clone();
+        Solution child2 = problem.getSolution(parent2_index).clone();
 
         for(int i =0; i<problem.getNumberOfSubsets(); i++){
             double rand = getRng().nextDouble();

@@ -11,17 +11,11 @@ import java.io.IOException;
 import java.util.*;
 
 import static com.ai.HeuristicClasses.*;
-import static com.ai.problems.min_set.Config.BACKUP_SOLUTION_INDEX;
-import static com.ai.problems.min_set.Config.CURRENT_SOLUTION_INDEX;
+import static com.ai.problems.min_set.Config.*;
 import static com.ai.problems.min_set.enums.InstanceReader.*;
 
 
 public class MinSetProblem implements Problem {
-
-    // CONSTANTS
-    private final double RANDOM_INTIALISATION = .2;
-    private double depth_of_search = .1;
-    private double intensity_of_mutation = 0.7;
 
     // Binary encoding of a solution, each index specifying the subset in subsets, 1 being selected, 0 not.
     private final ArrayList <Solution> solutions = new ArrayList<>();
@@ -123,7 +117,7 @@ public class MinSetProblem implements Problem {
      * @return the corresponding iteration count to be done in hill climbing methods.
      */
     public int getDepthOfSearch() {
-        return caseConvertion(depth_of_search);
+        return caseConvertion(DEPTH_OF_SEARCH);
     }
 
     /**
@@ -131,7 +125,7 @@ public class MinSetProblem implements Problem {
      * @return the corresponding iteration count to be done in mutation methods.
      */
     public int getIntensityOfMutation() {
-        return caseConvertion(intensity_of_mutation);
+        return caseConvertion(INTENSITY_OF_MUTATION);
     }
 
     public MinSetProblem(Random rng) {
@@ -147,11 +141,14 @@ public class MinSetProblem implements Problem {
         CrossoverHeuristic[] crossovers = {new UniformXO(this,getRng()),
                                     new Uniform2Point(this,getRng()),
                                     new Uniform1Point(this,getRng())};
+        RuinRecreateHeuristic[] ruin_recreate = {new RuinRecreateHighest(this,getRng()),
+                                    new RuinRecreateLowest(this,getRng())};
 
         // Add to Mapping
         heurstics.put(Mutational,mutations);
         heurstics.put(Hill_Climbing,hill_climbing);
         heurstics.put(Crossover,crossovers);
+        heurstics.put(Ruin_and_Recreate, ruin_recreate);
 
     }
 
