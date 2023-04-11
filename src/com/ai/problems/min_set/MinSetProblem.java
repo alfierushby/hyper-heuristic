@@ -293,6 +293,7 @@ public class MinSetProblem implements Problem {
 
                 // Second case, check size 1 and NumSubsets and NumElements are filled.
                 else if(data.size() == 2){
+                    System.out.println(arr[1]);
                     data.put(SizeOfSubset,Integer.valueOf(arr[1]));
                     insert_limit = data.get(SizeOfSubset);
                 }
@@ -303,11 +304,14 @@ public class MinSetProblem implements Problem {
                     insert_limit -= num_inserted; // Minus the items to insert.
                 }
 
-                // If we're done inserting subsets, clear the data.
+                // If we're done inserting subset, clear the data.
                 if(insert_limit <=0){
                     data.remove(SizeOfSubset);
                     current_subset_i++;
                 }
+
+                if(current_subset_i>=data.get(NumSubsets))
+                    break;
 
                 // Read next line.
                 line = reader.readLine();

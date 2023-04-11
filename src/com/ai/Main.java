@@ -17,7 +17,7 @@ public class Main {
         Random ran = new Random(121456789);
 
         MinSetProblem problem = new MinSetProblem(ran);
-        problem.loadInstance("src/test_instances/d1_50_500.txt");
+        problem.loadInstance("src/test_instances/test.txt");
         problem.initialiseSolution();
         IterableHeuristic[] mutation = (IterableHeuristic[]) problem.getHeuristics(Mutational);
         IterableHeuristic[] hill_climbing = (IterableHeuristic[]) problem.getHeuristics(Hill_Climbing);
@@ -32,7 +32,7 @@ public class Main {
             System.out.println("///////////////////////////////////");
             //mutation[0].applyHeuristic(CURRENT_SOLUTION_INDEX,BACKUP_SOLUTION_INDEX);
             //crossover[2].applyHeuristic(CURRENT_SOLUTION_INDEX,BACKUP_SOLUTION_INDEX,CURRENT_SOLUTION_INDEX);
-            ruins[1].applyHeuristic(BACKUP_SOLUTION_INDEX,BACKUP_SOLUTION_INDEX);
+            //ruins[1].applyHeuristic(BACKUP_SOLUTION_INDEX,BACKUP_SOLUTION_INDEX);
 //            problem.getOperations().exchangeBits(problem.getSolution(CURRENT_SOLUTION_INDEX),
 //                    problem.getSolution(BACKUP_SOLUTION_INDEX),1);
              problem.printInfo(CURRENT_SOLUTION_INDEX);
