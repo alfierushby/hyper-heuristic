@@ -1,5 +1,6 @@
 package com.ai.problems.min_set.heuristics;
 
+import com.ai.HeuristicClasses;
 import com.ai.problems.min_set.MinSetProblem;
 
 import java.util.Random;
@@ -18,6 +19,11 @@ public abstract class Heuristic {
     public Random getRng() {
         return rng;
     }
+
+    /**
+     * @return The class of heuristic
+     */
+    public abstract HeuristicClasses getHeuristicClass();
 
     public Heuristic(MinSetProblem problem, Random rng) {
         this.problem = problem;

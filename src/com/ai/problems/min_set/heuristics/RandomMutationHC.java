@@ -1,10 +1,15 @@
 package com.ai.problems.min_set.heuristics;
 
+import com.ai.HeuristicClasses;
 import com.ai.problems.min_set.MinSetProblem;
 
 import java.util.Random;
 
 public class RandomMutationHC extends IterableHeuristic {
+    @Override
+    public HeuristicClasses getHeuristicClass() {
+        return HeuristicClasses.Hill_Climbing;
+    }
 
     public RandomMutationHC(MinSetProblem problem, Random rng) {
         super(problem,rng);

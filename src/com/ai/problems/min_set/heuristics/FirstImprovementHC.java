@@ -1,9 +1,14 @@
 package com.ai.problems.min_set.heuristics;
 
+import com.ai.HeuristicClasses;
 import com.ai.problems.min_set.MinSetProblem;
 
 import java.util.Random;
 public class FirstImprovementHC extends IterableHeuristic {
+    @Override
+    public HeuristicClasses getHeuristicClass() {
+        return HeuristicClasses.Hill_Climbing;
+    }
 
     public FirstImprovementHC(MinSetProblem problem, Random rng) {
         super(problem,rng);

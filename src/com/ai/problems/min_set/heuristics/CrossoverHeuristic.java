@@ -1,5 +1,6 @@
 package com.ai.problems.min_set.heuristics;
 
+import com.ai.HeuristicClasses;
 import com.ai.problems.min_set.MinSetProblem;
 import com.ai.problems.min_set.Solution;
 
@@ -8,6 +9,10 @@ import java.util.Random;
 
 public abstract class CrossoverHeuristic extends Heuristic {
 
+    @Override
+    public HeuristicClasses getHeuristicClass() {
+        return HeuristicClasses.Crossover;
+    }
 
     public CrossoverHeuristic(MinSetProblem problem, Random rng) {
         super(problem, rng);

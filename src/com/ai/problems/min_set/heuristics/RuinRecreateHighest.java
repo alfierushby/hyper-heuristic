@@ -1,5 +1,6 @@
 package com.ai.problems.min_set.heuristics;
 
+import com.ai.HeuristicClasses;
 import com.ai.problems.min_set.MinSetProblem;
 import com.ai.problems.min_set.Solution;
 

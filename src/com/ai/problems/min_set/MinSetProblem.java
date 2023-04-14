@@ -28,7 +28,7 @@ public class MinSetProblem implements Problem {
     private final Map<Enum<InstanceReader>,Integer> data = new HashMap<>();
     private Operations operations;
 
-    private final Map<Enum<HeuristicClasses>, Heuristic[]> heurstics = new HashMap<>();
+    private final Map<Enum<HeuristicClasses>, Heuristic[]> heuristics = new HashMap<>();
 
 
     public Operations getOperations() {
@@ -94,7 +94,7 @@ public class MinSetProblem implements Problem {
     }
     @Override
     public Heuristic[] getHeuristics(HeuristicClasses h_class) {
-        return heurstics.get(h_class);
+        return heuristics.get(h_class);
     }
 
     private int caseConvertion(double val){
@@ -145,10 +145,10 @@ public class MinSetProblem implements Problem {
                                     new RuinRecreateLowest(this,getRng())};
 
         // Add to Mapping
-        heurstics.put(Mutational,mutations);
-        heurstics.put(Hill_Climbing,hill_climbing);
-        heurstics.put(Crossover,crossovers);
-        heurstics.put(Ruin_and_Recreate, ruin_recreate);
+        heuristics.put(Mutational,mutations);
+        heuristics.put(Hill_Climbing,hill_climbing);
+        heuristics.put(Crossover,crossovers);
+        heuristics.put(Ruin_and_Recreate, ruin_recreate);
 
     }
 

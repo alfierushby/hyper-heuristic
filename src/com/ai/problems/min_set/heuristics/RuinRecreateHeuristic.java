@@ -1,10 +1,16 @@
 package com.ai.problems.min_set.heuristics;
 
+import com.ai.HeuristicClasses;
 import com.ai.problems.min_set.MinSetProblem;
 
 import java.util.Random;
 
 public abstract class RuinRecreateHeuristic extends Heuristic{
+    @Override
+    public HeuristicClasses getHeuristicClass() {
+        return HeuristicClasses.Ruin_and_Recreate;
+    }
+
     int intensity;
 
     public int getIntensity() {
