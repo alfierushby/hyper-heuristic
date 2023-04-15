@@ -1,7 +1,9 @@
 package com.ai;
 
+import com.ai.problems.min_set.heuristics.CrossoverHeuristic;
 import com.ai.problems.min_set.heuristics.Heuristic;
 import com.ai.problems.min_set.records.HeuristicData;
+import com.ai.problems.min_set.records.SolutionObjective;
 import com.ai.problems.min_set.records.HeuristicPair;
 import com.ai.problems.min_set.records.TimeObjectiveValue;
 
@@ -9,7 +11,6 @@ import java.sql.Time;
 import java.util.*;
 
 import static com.ai.HeuristicClasses.*;
-import static java.lang.System.nanoTime;
 
 /**
  * Hyper Heuristic that implements the Modified Choice Function, includes Crossover
@@ -19,6 +20,9 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
     int max_number_of=100;
     Random rng;
     int best_objective_value, current_objective_value, iteration=0;
+    final int offset = 5, max_best_heuristics = 5;
+    public static final int CURRENT_SOLUTION_INDEX = 0;
+    public static final int BACKUP_SOLUTION_INDEX = 1;
     Problem problem_domain;
     HeuristicData prev_heuristic;
     ArrayList<Double> phis= new ArrayList<>();
@@ -43,6 +47,7 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
     long[] times;
 
     ArrayList<Heuristic> heuristics = new ArrayList<>();
+    ArrayList<SolutionObjective> best_solutions = new ArrayList<>();
 
     public ArrayList<ArrayList<TimeObjectiveValue>> getHeuristicSingleData() {
         return heuristic_single_data;
@@ -132,11 +137,18 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
         this.times = times;
     }
 
+    public ArrayList<SolutionObjective> getBestSolutions() {
+        return best_solutions;
+    }
+
+    public int getMaxBestHeuristics() {
+        return max_best_heuristics;
+    }
+
     public HyperHeuristicModifiedChoice(Random rng) {
         setRng(rng);
     }
-
-    void setupHeuristicList(){
+    private void setupHeuristicList(){
         ArrayList<Heuristic> list_heuristics = getHeuristics();
         list_heuristics.addAll(List.of(getProblemDomain().getHeuristics(Mutational)));
         list_heuristics.addAll(List.of(getProblemDomain().getHeuristics(Hill_Climbing)));
@@ -153,6 +165,56 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
     }
 
 
+    /**
+     * Compares the input solution with the best of X solutions, adding if it is better
+     * or if there is an available space.
+     * @param solution_id Id of heuristic to maybe add to the best of X heuristics.
+     */
+    private void modifyBestSolutionList(int solution_id){
+        // Create data for use. Uses another specific structure. I wonder if generics exist? I wouldn't know.
+
+        ArrayList<SolutionObjective> solutions = getBestSolutions();
+        int len = solutions.size();
+
+        if(len < getMaxBestHeuristics()){
+            // Data is unordered as it is randomly picked form.
+            // Copy data to the offset data location that is expected to not change.
+            getProblemDomain().copySolution(solution_id,len+offset);
+            // Add the record of this best solution.
+            getBestSolutions().add(new SolutionObjective(len+offset,current_objective_value));
+            return;
+        }
+
+        int i =0;
+        for(SolutionObjective h_data : solutions){
+            if(current_objective_value>h_data.objectiveValue()){
+                // Replace solution in memory.
+                getProblemDomain().copySolution(solution_id,h_data.solutionId());
+                // Replace data with new objective value.
+                solutions.set(i,new SolutionObjective(h_data.solutionId(),current_objective_value));
+            }
+            i++;
+        }
+    }
+
+    /**
+     * @return A random solution Id from the best solutions.
+     */
+    private int getRandomBestSolution(){
+        ArrayList<SolutionObjective> solutions = getBestSolutions();
+        int len = solutions.size();
+        if(len==0)
+            // Single point methods work on saving to current solution at end of iteration.
+            return CURRENT_SOLUTION_INDEX;
+        int ran = getRng().nextInt(len);
+        return solutions.get(ran).solutionId();
+    }
+
+    /**
+     * Performs a general computation that exists in f1 and f2 functions.
+     * @param time_data array of time data to perform the general computation for f1 & f2.
+     * @return
+     */
     private double generalComputationFunction(ArrayList<TimeObjectiveValue> time_data){
         double phi_val = getPhis().get(getIteration());
 
@@ -192,9 +254,13 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
         return generalComputationFunction(time_data);
     }
 
+    /**
+     * @param heuristicId Id to perform function 3 on.
+     * @return time, in seconds, on how long it has been since the heuristic was last executed.
+     */
     double function3(int heuristicId){
         // Time is in milliseconds, so return in seconds.
-        return (double) getTimes()[heuristicId] /1000;
+        return (double)  (System.currentTimeMillis() - getTimes()[heuristicId])/1000;
     }
 
     @Override
@@ -243,20 +309,75 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
                 }
             }
 
-            // Apply heuristic.
+            // Apply heuristic. //
 
             Heuristic heuristic = getHeuristic(best_index);
-            if(heuristic.getHeuristicClass()!= Crossover){
-
+            long before_run = System.currentTimeMillis();
+            if(heuristic.getHeuristicClass() == Crossover){
+                CrossoverHeuristic cross_heuristic = (CrossoverHeuristic) heuristic;
+                int parent2 = getRandomBestSolution();
+                cross_heuristic.applyHeuristic(CURRENT_SOLUTION_INDEX,parent2,BACKUP_SOLUTION_INDEX);
             } else {
+                heuristic.applyHeuristic(CURRENT_SOLUTION_INDEX,BACKUP_SOLUTION_INDEX);
+            }
+            long change_time_secs = (System.currentTimeMillis() - before_run)/1000;
 
+
+            // Add data for next iteration //
+
+            // Add data for best solution
+            modifyBestSolutionList(BACKUP_SOLUTION_INDEX);
+
+            // Add data for function 1
+            // Change in quality. Positive indicates an improvement (from a higher to lower objective value).
+            int change_quality = getCurrentObjectiveValue() - getProblemDomain().getObjectiveValue(BACKUP_SOLUTION_INDEX);
+
+            // Multiply by 1 or -1 depending on whether the problem domain is a minimization or maximisation problem.
+            // 1 entails it is a minimization problem.
+            change_quality *= getProblemDomain().getObjectiveValueGoal();
+            getHeuristicSingleData().get(best_index).add(new TimeObjectiveValue(change_time_secs,change_quality));
+
+            // Add data for function 2
+            if(getPrevHeuristic() != null){
+                HeuristicPair key = new HeuristicPair(getPrevHeuristic().heuristicID(),best_index);
+
+                // Make sure it contains an arraylist for the specified key.
+                if(!getFollowHeuristicTimes().containsKey(key))
+                    getFollowHeuristicTimes().put(key,new ArrayList<>());
+
+                ArrayList<TimeObjectiveValue> time_data = getFollowHeuristicTimes().get(key);
+
+                // Change in objective value, positive entailing the current solution has a lower objective value, thus
+                // better. Defaulting to minimisation.
+                int change_relative_quality = getPrevHeuristic().data().ObjectiveValue()
+                        - getProblemDomain().getObjectiveValue(BACKUP_SOLUTION_INDEX);
+
+                // Modifies to maximisation if required.
+                change_relative_quality *= getProblemDomain().getObjectiveValueGoal();
+
+                // Add data
+                time_data.add(new TimeObjectiveValue(change_time_secs,change_relative_quality));
             }
 
-            // Add data for next iteration
+            // Set time for function 3.
 
+            // Set time in milliseconds for accuracy.
+            getTimes()[best_index] = before_run;
 
+            // Update current objective value.
+            setCurrentObjectiveValue(getProblemDomain().getObjectiveValue(BACKUP_SOLUTION_INDEX));
 
+            // Set previous heuristic //
 
+            // Sets data to the objective value of new solution and the time it was run (won't be used).
+            setPrevHeuristic(new HeuristicData(best_index,new TimeObjectiveValue(before_run,getCurrentObjectiveValue())));
+
+            // Copy solution to current solution (All move acceptance)
+            getProblemDomain().copySolution(BACKUP_SOLUTION_INDEX,CURRENT_SOLUTION_INDEX);
+
+            // Update best objective value.
+            if(getCurrentObjectiveValue() > getBestObjectiveValue())
+                setBestObjectiveValue(getCurrentObjectiveValue());
 
         }
 

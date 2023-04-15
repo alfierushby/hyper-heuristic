@@ -200,17 +200,23 @@ public class MinSetProblem implements Problem {
         solutions.set(to,new_sol);
     }
 
+    @Override
+    public int getObjectiveValueGoal() {
+        // Minimisation problem.
+        return 1;
+    }
+
     /**
      * Initialises the solution randomly.<br>
      * <b>Must be done before using the solution index.</b>
      */
-    public void initialiseSolution(){
+    public void initialiseSolution(int current_solution_index,int backup_solution_index){
         int index = 0;
         // Initialise solution memory.
         Solution solution = new Solution(data.get(NumSubsets),data.get(NumElements));
 
         // Create current solution:
-        insertSolution(solution,CURRENT_SOLUTION_INDEX);
+        insertSolution(solution,current_solution_index);
         boolean[] solution_data = solution.getSolutionData();
 
         for (int[] subset : subsets){
@@ -223,13 +229,13 @@ public class MinSetProblem implements Problem {
         }
 
         // Initialise Objective Values
-        getEvaluator(CURRENT_SOLUTION_INDEX).setObjectiveValue();
+        getEvaluator(current_solution_index).setObjectiveValue();
 
-        insertSolution(solution.clone(),BACKUP_SOLUTION_INDEX);
+        insertSolution(solution.clone(),backup_solution_index);
 
 
-        System.out.println( "Evaluation : " + getEvaluator(CURRENT_SOLUTION_INDEX).getObjectiveValue() + " Infeasibility : "
-                + getEvaluator(CURRENT_SOLUTION_INDEX).getUnaccountedElements());
+        System.out.println( "Evaluation : " + getEvaluator(current_solution_index).getObjectiveValue() + " Infeasibility : "
+                + getEvaluator(current_solution_index).getUnaccountedElements());
 
         // Create backup solution:
     }

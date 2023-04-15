@@ -3,9 +3,6 @@ package com.ai.problems.min_set;
 import java.util.Arrays;
 import java.util.function.IntBinaryOperator;
 
-import static com.ai.problems.min_set.Config.BACKUP_SOLUTION_INDEX;
-import static com.ai.problems.min_set.Config.CURRENT_SOLUTION_INDEX;
-
 /**
  * Contains fundamental operations that are used by heuristics.
  */

@@ -22,7 +22,7 @@ public class RuinRecreateLowest extends RuinRecreateHeuristic{
             if(i>0){
                 bitFalse(i,save_index);
             } else{
-                bitFalse(len-1-i,save_index);
+                bitFalse(len-1+i,save_index);
             }
         }
     }
