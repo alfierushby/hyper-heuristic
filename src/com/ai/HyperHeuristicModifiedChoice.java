@@ -175,25 +175,23 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
 
         ArrayList<SolutionObjective> solutions = getBestSolutions();
         int len = solutions.size();
+        int objective_value = getProblemDomain().getObjectiveValue(solution_id);
 
         if(len < getMaxBestHeuristics()){
             // Data is unordered as it is randomly picked form.
             // Copy data to the offset data location that is expected to not change.
             getProblemDomain().copySolution(solution_id,len+offset);
             // Add the record of this best solution.
-            getBestSolutions().add(new SolutionObjective(len+offset,current_objective_value));
+            getBestSolutions().add(new SolutionObjective(len+offset,objective_value));
             return;
         }
-
-        int i =0;
-        for(SolutionObjective h_data : solutions){
-            if(current_objective_value>h_data.objectiveValue()){
-                // Replace solution in memory.
-                getProblemDomain().copySolution(solution_id,h_data.solutionId());
-                // Replace data with new objective value.
-                solutions.set(i,new SolutionObjective(h_data.solutionId(),current_objective_value));
-            }
-            i++;
+        Optional<SolutionObjective> worst = solutions.stream().max(Comparator.comparingInt(SolutionObjective::objectiveValue));
+        if(worst.isPresent()){
+            int i = solutions.indexOf(worst.get());
+            // Replace solution in memory.
+            getProblemDomain().copySolution(solution_id,worst.get().solutionId());
+            // Replace data with new objective value.
+            solutions.set(i,new SolutionObjective(worst.get().solutionId(),objective_value));
         }
     }
 
@@ -364,6 +362,13 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
             // Set time in milliseconds for accuracy.
             getTimes()[best_index] = before_run;
 
+            // Update Phi //
+            boolean improved = getProblemDomain().getObjectiveValue(BACKUP_SOLUTION_INDEX) < getCurrentObjectiveValue();
+            if(improved)
+                getPhis().add(0.99);
+            else
+                getPhis().add(Math.max( getPhis().get(getIteration())-0.01,0.01));
+
             // Update current objective value.
             setCurrentObjectiveValue(getProblemDomain().getObjectiveValue(BACKUP_SOLUTION_INDEX));
 
@@ -379,6 +384,8 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
             if(getCurrentObjectiveValue() > getBestObjectiveValue())
                 setBestObjectiveValue(getCurrentObjectiveValue());
 
+            // Increment iteration
+            incrementIteration();
         }
 
     }
