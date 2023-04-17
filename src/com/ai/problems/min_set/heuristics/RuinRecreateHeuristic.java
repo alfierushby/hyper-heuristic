@@ -5,6 +5,8 @@ import com.ai.problems.min_set.MinSetProblem;
 
 import java.util.Random;
 
+import static com.ai.problems.min_set.Config.INTENSITY_OF_MUTATION;
+
 public abstract class RuinRecreateHeuristic extends Heuristic{
     @Override
     public HeuristicClasses getHeuristicClass() {
@@ -19,7 +21,12 @@ public abstract class RuinRecreateHeuristic extends Heuristic{
 
     public RuinRecreateHeuristic(MinSetProblem problem, Random rng) {
         super(problem, rng);
-        this.intensity = problem.getIntensityOfMutation()*2;
+        int tmp = getProblem().getIntensityOfMutation()*2;
+        if(tmp > getProblem().getNumberOfSubsets()){
+            tmp = getProblem().getNumberOfSubsets();
+        }
+        this.intensity = tmp;
+        System.out.println(intensity);
     }
 
     /**
@@ -28,15 +35,6 @@ public abstract class RuinRecreateHeuristic extends Heuristic{
      */
     public abstract void applyHeuristicSingle(int save_index);
 
-    /**
-     * Makes specified bit false. Includes delta evaluation.
-     * @param bit_index Bit to make false
-     * @param sol_index Solution index to work on
-     */
-    public void bitFalse(int bit_index,int sol_index){
-        if(getProblem().getSolution(sol_index).getSolutionData()[bit_index])
-            getProblem().getOperations().bitFlip(bit_index,sol_index);
-    }
 
     @Override
     public void applyHeuristic(int sol_index, int save_index) {

@@ -15,11 +15,14 @@ import static com.ai.problems.min_set.Config.*;
 
 public class Main {
     public static void main(String[] args) {
-        Random ran = new Random(123456789);
+        Random ran = new Random(32423453);
+         MinSetProblem problem = new MinSetProblem(ran);
+         problem.loadInstance("src/test_instances/d4_2047_495.txt");
+         HyperHeuristicModifiedChoice hyper_heuristic = new HyperHeuristicModifiedChoice(ran);
+         hyper_heuristic.applyHyperHeuristic(problem);
+         problem.getSolution(hyper_heuristic.CURRENT_SOLUTION_INDEX).getEvaluator().setObjectiveValue();
+         System.out.println("I am " + problem.getObjectiveValue(hyper_heuristic.CURRENT_SOLUTION_INDEX));
 
-        MinSetProblem problem = new MinSetProblem(ran);
-        problem.loadInstance("src/test_instances/d1_50_500.txt");
-      //  problem.initialiseSolution();
 //        IterableHeuristic[] mutation = (IterableHeuristic[]) problem.getHeuristics(Mutational);
 //        IterableHeuristic[] hill_climbing = (IterableHeuristic[]) problem.getHeuristics(Hill_Climbing);
 //        CrossoverHeuristic[] crossover = (CrossoverHeuristic[]) problem.getHeuristics(Crossover);

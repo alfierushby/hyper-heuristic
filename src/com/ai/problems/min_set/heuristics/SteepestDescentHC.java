@@ -27,7 +27,7 @@ public class SteepestDescentHC extends IterableHeuristic {
             problem.getOperations().bitFlip(j,sol_index);
             tmpEval = problem.getObjectiveValue(sol_index);
 
-            if(tmpEval <= bestEval){
+            if(tmpEval < bestEval){
                 bestIndex = j;
                 bestEval = tmpEval;
                 improved = true;

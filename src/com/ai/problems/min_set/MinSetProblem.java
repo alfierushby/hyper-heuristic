@@ -18,7 +18,7 @@ import static com.ai.problems.min_set.enums.InstanceReader.*;
 public class MinSetProblem implements Problem {
 
     // Binary encoding of a solution, each index specifying the subset in subsets, 1 being selected, 0 not.
-    private final ArrayList <Solution> solutions = new ArrayList<>();
+    private final Map <Integer,Solution> solutions = new HashMap<>();
     private final Random rng;
     // List of subsets that map edges.
     private final ArrayList< int[] > subsets = new ArrayList<>();
@@ -55,7 +55,7 @@ public class MinSetProblem implements Problem {
     }
 
     /**
-     * @return solution of problem in binary encoding form
+     * @return Solution object that houses the solution map (edge data), solution data, and evaluator/objective values.
      */
     public Solution getSolution(int index) {
         return solutions.get(index);
@@ -132,24 +132,6 @@ public class MinSetProblem implements Problem {
         this.rng = rng;
         setOperations(new Operations(this));
 
-        // Create Heuristic arrays for the Problem Domain
-        IterableHeuristic[] mutations = {new BitMutation(this,getRng())};
-        IterableHeuristic[] hill_climbing = {new DavisBitHC(this,getRng()),
-                                    new SteepestDescentHC(this,getRng()),
-                                    new FirstImprovementHC(this,getRng()),
-                                    new RandomMutationHC(this,getRng())};
-        CrossoverHeuristic[] crossovers = {new UniformXO(this,getRng()),
-                                    new Uniform2Point(this,getRng()),
-                                    new Uniform1Point(this,getRng())};
-        RuinRecreateHeuristic[] ruin_recreate = {new RuinRecreateHighest(this,getRng()),
-                                    new RuinRecreateLowest(this,getRng())};
-
-        // Add to Mapping
-        heuristics.put(Mutational,mutations);
-        heuristics.put(Hill_Climbing,hill_climbing);
-        heuristics.put(Crossover,crossovers);
-        heuristics.put(Ruin_and_Recreate, ruin_recreate);
-
     }
 
       //////////////////////////////
@@ -164,40 +146,19 @@ public class MinSetProblem implements Problem {
     }
 
     /**
-     * This adds the solution, not replacing the existing solution but shifting it.
-     * @param solution Solution to added.
-     * @param sol_index Index it will be set, shifts existing solution in location.
-     */
-    public void insertSolution(Solution solution, int sol_index){
-
-        // Set solution to arraylist memory
-        solutions.add(sol_index,solution);
-    }
-
-    /**
      * This either replaces a solution in memory, or adds it if no memory exists.
      * Avoids adding when not needed. Use when you don't want unexpected shifting of memory.
      * @param solution Solution to set.
      * @param sol_index Index it will be set, no shifting.
      */
     public void setSolution(Solution solution, int sol_index){
-
-        if(sol_index>solutions.size()){
-            insertSolution(solution,sol_index);
-            return;
-        }
         // Set solution to arraylist memory
-        solutions.set(sol_index,solution);
+        solutions.put(sol_index,solution);
     }
 
     public void copySolution(int from, int to){
         Solution new_sol = getSolution(from).clone();
-
-        if(solutions.size()<=to){
-            System.out.println("Trying to copy solution to uninitialized memory!");
-            return;
-        }
-        solutions.set(to,new_sol);
+        solutions.put(to,new_sol);
     }
 
     @Override
@@ -216,7 +177,7 @@ public class MinSetProblem implements Problem {
         Solution solution = new Solution(data.get(NumSubsets),data.get(NumElements));
 
         // Create current solution:
-        insertSolution(solution,current_solution_index);
+        setSolution(solution,current_solution_index);
         boolean[] solution_data = solution.getSolutionData();
 
         for (int[] subset : subsets){
@@ -231,7 +192,7 @@ public class MinSetProblem implements Problem {
         // Initialise Objective Values
         getEvaluator(current_solution_index).setObjectiveValue();
 
-        insertSolution(solution.clone(),backup_solution_index);
+        setSolution(solution.clone(),backup_solution_index);
 
 
         System.out.println( "Evaluation : " + getEvaluator(current_solution_index).getObjectiveValue() + " Infeasibility : "
@@ -322,6 +283,26 @@ public class MinSetProblem implements Problem {
                 // Read next line.
                 line = reader.readLine();
             }
+
+            // Create Heuristic arrays for the Problem Domain
+            IterableHeuristic[] mutations = {new BitMutation(this,getRng()),
+                                            new SwapBits(this,getRng()),
+                                            new HighestEdgesMutation(this,getRng())};
+            IterableHeuristic[] hill_climbing = {new DavisBitHC(this,getRng()),
+                    new SteepestDescentHC(this,getRng()),
+                    new FirstImprovementHC(this,getRng()),
+                    new RandomMutationHC(this,getRng())};
+            CrossoverHeuristic[] crossovers = {new UniformXO(this,getRng()),
+                    new Uniform2Point(this,getRng()),
+                    new Uniform1Point(this,getRng())};
+            RuinRecreateHeuristic[] ruin_recreate = {new RuinRecreateHighest(this,getRng()),
+                    new RuinRecreateLowest(this,getRng())};
+
+            // Add to Mapping
+            heuristics.put(Mutational,mutations);
+            heuristics.put(Hill_Climbing,hill_climbing);
+            heuristics.put(Crossover,crossovers);
+            heuristics.put(Ruin_and_Recreate, ruin_recreate);
 
         }  catch (IOException e) {
             e.printStackTrace();

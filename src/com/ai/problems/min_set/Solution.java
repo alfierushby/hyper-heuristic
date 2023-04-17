@@ -33,10 +33,17 @@ public class Solution implements Cloneable {
         this.unaccounted_elements = unaccounted_elements;
     }
 
+    /**
+     * @return The solution representing an array of booleans, with each index corresponding to a subset being active
+     * or not.
+     */
     public boolean[] getSolutionData() {
         return solution;
     }
 
+    /**
+     * @return The map of edges from the subsets to the base elements.
+     */
     public int[] getSolutionMap() { return solution_map; }
 
     public SolutionEvaluator getEvaluator() {

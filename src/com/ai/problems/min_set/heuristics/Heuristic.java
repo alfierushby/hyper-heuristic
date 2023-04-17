@@ -31,6 +31,16 @@ public abstract class Heuristic {
     }
 
     /**
+     * Makes specified bit false. Includes delta evaluation.
+     * @param bit_index Bit to make false
+     * @param sol_index Solution index to work on
+     */
+    public void bitFalse(int bit_index,int sol_index){
+        if(getProblem().getSolution(sol_index).getSolutionData()[bit_index])
+            getProblem().getOperations().bitFlip(bit_index,sol_index);
+    }
+
+    /**
      * This applies a heuristic, generic version.
      * @param sol_index Solution index to apply to
      * @param save_index Solution index where it saves
