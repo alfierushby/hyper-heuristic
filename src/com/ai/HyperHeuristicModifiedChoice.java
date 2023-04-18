@@ -23,9 +23,9 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
     final int offset = 5, max_best_heuristics = 5;
     public final int CURRENT_SOLUTION_INDEX = 0;
     public final int BACKUP_SOLUTION_INDEX = 1;
-    public double FUNCTION3_WEIGHT = 5;
+    public double FUNCTION3_WEIGHT = 10;
     public double FUNCTION2_WEIGHT = 1;
-    public double FUNCTION1_WEIGHT = 0.5;
+    public double FUNCTION1_WEIGHT = 1;
     Problem problem_domain;
     HeuristicData prev_heuristic;
     ArrayList<Double> phis= new ArrayList<>();
@@ -192,7 +192,7 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
         // Sets the array of times, defaulting to 0.
         long time = System.currentTimeMillis();
         setTimes(new long[list_heuristics.size()]);
-        Arrays.fill(getTimes(), time);
+        //Arrays.fill(getTimes(), time);
     }
 
 
@@ -275,10 +275,8 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
         // So, the oldest elements have the largest power.
         for (TimeObjectiveValue data : time_data){
             double phi_weighted = Math.pow(phi_val,n);
-            double time =  data.Time();
+            double time =  (double) data.Time();
             double obj = data.ObjectiveValue();
-            if(obj < 0)
-                obj=0;
             if(time == 0)
                 time = 1;
             total += phi_weighted * (obj/time);
@@ -317,7 +315,7 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
      */
     double function3(int heuristicId){
         // Time is in milliseconds, so return in seconds.
-        return (double) FUNCTION3_WEIGHT * (System.currentTimeMillis() - getTimes()[heuristicId]);
+        return (double) FUNCTION3_WEIGHT * (getIteration() - getTimes()[heuristicId]);
     }
 
     /**
@@ -438,7 +436,7 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
 
             // Set time for function 3.
             // Set time in milliseconds for accuracy.
-            getTimes()[best_index] = before_run;
+            getTimes()[best_index] = getIteration();
 
             // Update Phi //
             boolean improved = change_quality > 0;

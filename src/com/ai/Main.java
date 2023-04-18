@@ -14,9 +14,9 @@ import static com.ai.HeuristicClasses.*;
 
 public class Main {
     public static void main(String[] args) {
-        Random ran = new Random(32423453);
+        Random ran = new Random(123456789);
          MinSetProblem problem = new MinSetProblem(ran);
-         problem.loadInstance("src/test_instances/d1_50_500.txt");
+         problem.loadInstance("src/test_instances/d2_50_500.txt");
          HyperHeuristicModifiedChoice hyper_heuristic = new HyperHeuristicModifiedChoice(ran);
        //  problem.initialiseSolution(hyper_heuristic.CURRENT_SOLUTION_INDEX, hyper_heuristic.BACKUP_SOLUTION_INDEX);
         hyper_heuristic.applyHyperHeuristic(problem);
