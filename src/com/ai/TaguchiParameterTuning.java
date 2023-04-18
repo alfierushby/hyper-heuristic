@@ -16,7 +16,7 @@ import java.util.ArrayList;
  * <br>
  * <b>Depth of Search </b>: {0,0.2,0.4,0.6,0.8}
  * <br
- * <b>Intensity of Mutation</b>: {0,0.2,0.4,0.6,0.8
+ * <b>Intensity of Mutation</b>: {0,0.2,0.4,0.6,0.8}
  */
 public class TaguchiParameterTuning {
 
@@ -29,5 +29,33 @@ public class TaguchiParameterTuning {
      */
     int[][][] result = new int[30][4][25];
 
+    int[][] taguchi_array = new int[][] {{1,1,1,1,1,1},
+            {1,	2,	2,	2,	2,	2 },
+            {1,	3,	3,	3,	3,	3 },
+            {1,	4,	4,	4,	4,	4 },
+            {1,	5,	5,	5,	5,	5 },
+            {2,	1,	2,	3,	4,	5 },
+            {2,	2,	3,	4,	5,	1 },
+            {2,	3,	4,	5,	1,	2 },
+            {2,	4,	5,	1,	2,	3 },
+            {2,	5,	1,	2,	3,	4 },
+            {3,	1,	3,	5,	2,	4 },
+            {3,	2,	4,	1,	3,	5 },
+            {3,	3,	5,	2,	4,	1 },
+            {3,	4,	1,	3,	5,	2 },
+            {3,	5,	2,	4,	1,	3 },
+            {4,	1,	4,	2,	5,	3 },
+            {4,	2,	5,	3,	1,	4 },
+            {4,	3,	1,	4,	2,	5 },
+            {4,	4,	2,	5,	3,	1 },
+            {4,	5,	3,	1,	4,	2 },
+            {5,	1,	5,	4,	3,	2 },
+            {5,	2,	1,	5,	4,	3 },
+            {5,	3,	2,	1,	5,	4 },
+            {5,	4,	3,	2,	1,	5 },
+            {5,	5,	4,	3,	2,	1 }};
 
+    // Follows form function1, function2, function3, random_initialisation, depth_of_search & intensity_of_mutation.
+    double[][] weights = {{1,2,5,10,0.5},{1,2,5,10,0.5},{1,2,5,10,0.5},{0.01,0.05,0.1,0.25,0.5},
+            {0,0.2,0.4,0.6,0.8},{0,0.2,0.4,0.6,0.8}};
 }
