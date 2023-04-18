@@ -5,7 +5,6 @@ import com.ai.problems.min_set.MinSetProblem;
 
 import java.util.Random;
 
-import static com.ai.problems.min_set.Config.INTENSITY_OF_MUTATION;
 
 public abstract class RuinRecreateHeuristic extends Heuristic{
     @Override

@@ -10,8 +10,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
+import static com.ai.Config.*;
 import static com.ai.HeuristicClasses.*;
-import static com.ai.problems.min_set.Config.*;
 import static com.ai.problems.min_set.enums.InstanceReader.*;
 
 

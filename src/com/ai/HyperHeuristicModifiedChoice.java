@@ -7,10 +7,10 @@ import com.ai.problems.min_set.records.SolutionObjective;
 import com.ai.problems.min_set.records.HeuristicPair;
 import com.ai.problems.min_set.records.TimeObjectiveValue;
 
-import java.sql.Time;
 import java.util.*;
 
 import static com.ai.HeuristicClasses.*;
+import static com.ai.Config.*;
 
 /**
  * Hyper Heuristic that implements the Modified Choice Function, includes Crossover
@@ -23,7 +23,9 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
     final int offset = 5, max_best_heuristics = 5;
     public final int CURRENT_SOLUTION_INDEX = 0;
     public final int BACKUP_SOLUTION_INDEX = 1;
-    public final double TIME_WEIGHT = 1;
+    public double FUNCTION3_WEIGHT = 5;
+    public double FUNCTION2_WEIGHT = 1;
+    public double FUNCTION1_WEIGHT = 0.5;
     Problem problem_domain;
     HeuristicData prev_heuristic;
     ArrayList<Double> phis= new ArrayList<>();
@@ -152,6 +154,29 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
     public HyperHeuristicModifiedChoice(Random rng) {
         setRng(rng);
     }
+
+    /**
+     * Used for parameter tuning of the hyper heuristic. Every variable beyond rng modifies the functionality of the
+     * hyper heuristic.
+     * @param rng
+     * @param function_1_weight The weight of the first function
+     * @param function_2_weight The weight of the second function
+     * @param function_3_weight The weight of the third function
+     * @param random_initialisation The value 0-1 defining the probability of a variable being assigned 1 in the solution initialisation.
+     * @param depth_of_search 0-1, determines the intensity of hill climbing.
+     * @param intensity_of_mutation 0-1, determines the intensity of mutation.
+     */
+    public HyperHeuristicModifiedChoice(Random rng, double function_1_weight, double function_2_weight, double function_3_weight,
+                                        double random_initialisation, double depth_of_search, double intensity_of_mutation){
+        this.FUNCTION1_WEIGHT = function_1_weight;
+        this.FUNCTION2_WEIGHT = function_2_weight;
+        this.FUNCTION3_WEIGHT = function_3_weight;
+
+        RANDOM_INTIALISATION = random_initialisation;
+        DEPTH_OF_SEARCH = depth_of_search;
+        INTENSITY_OF_MUTATION = intensity_of_mutation;
+    }
+
     private void setupHeuristicList(){
         ArrayList<Heuristic> list_heuristics = getHeuristics();
         list_heuristics.addAll(List.of(getProblemDomain().getHeuristics(Mutational)));
@@ -192,6 +217,8 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
             getBestSolutions().add(new SolutionObjective(len+offset,objective_value));
             return len;
         }
+
+        // NEEDS CHECKING!
         Optional<SolutionObjective> worst = solutions.stream().max(Comparator.comparingInt(SolutionObjective::objectiveValue));
         if(worst.isPresent()){
             int i = solutions.indexOf(worst.get());
@@ -248,7 +275,7 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
         // So, the oldest elements have the largest power.
         for (TimeObjectiveValue data : time_data){
             double phi_weighted = Math.pow(phi_val,n);
-            double time =  TIME_WEIGHT* data.Time(); // Convert to seconds.
+            double time =  data.Time();
             double obj = data.ObjectiveValue();
             if(obj < 0)
                 obj=0;
@@ -266,9 +293,7 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
      */
     double function1(int heuristicId){
         ArrayList<TimeObjectiveValue> time_data = getHeuristicSingleData().get(heuristicId);
-        if(time_data != null)
-            return generalComputationFunction(time_data);
-        return 0;
+        return FUNCTION1_WEIGHT * generalComputationFunction(time_data);
     }
 
     /**
@@ -282,17 +307,17 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
         HeuristicPair index = new HeuristicPair(heuristicK,heuristicJ);
         ArrayList<TimeObjectiveValue> time_data = getFollowHeuristicTimes().get(index);
         if(time_data != null)
-            return generalComputationFunction(time_data);
+            return FUNCTION2_WEIGHT*generalComputationFunction(time_data);
         return 0;
     }
 
     /**
      * @param heuristicId Id to perform function 3 on.
-     * @return time, in seconds, on how long it has been since the heuristic was last executed.
+     * @return time, in milliseconds, on how long it has been since the heuristic was last executed.
      */
     double function3(int heuristicId){
         // Time is in milliseconds, so return in seconds.
-        return (double)  TIME_WEIGHT* (System.currentTimeMillis() - getTimes()[heuristicId]);
+        return (double) FUNCTION3_WEIGHT * (System.currentTimeMillis() - getTimes()[heuristicId]);
     }
 
     /**
@@ -335,7 +360,7 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
                 double score = f1 + f2 + f3;
                 boolean choose = false;
 
-                System.out.println(" heuristic ID " + id + " with a score of " + score);
+                System.out.println(" heuristic ID " + id + " with a score of " + f1 + " + " + f2 + " + " + f3);
 
                 // Decide to choose
                 if(score > best_score){
