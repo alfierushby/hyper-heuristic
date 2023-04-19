@@ -17,11 +17,27 @@ public class Solution implements Cloneable {
         this.prev_unaccount = prev_unaccount;
     }
 
+    /**
+     * @return The full objective value including infeasibility. Do not use this when setting the *pure* objective value
+     * , as that doesn't include the infeasibility.
+     */
     public int getObjectiveValue() {
+        int total= getPureObjectiveValue();
+        if(unaccounted_elements>0)
+            total += unaccounted_elements + getSolutionData().length;
+
+        return total;
+    }
+
+    /**
+     * @return Purely includes only the scoring outside of infeasible solutions. Should only be used when modifying
+     * the objective value.
+     */
+    public int getPureObjectiveValue() {
         return objective_value;
     }
 
-    public void setObjectiveValue(int objective_value) {
+    public void setPureObjectiveValue(int objective_value) {
         this.objective_value = objective_value;
     }
 

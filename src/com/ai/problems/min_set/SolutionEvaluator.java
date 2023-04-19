@@ -1,11 +1,5 @@
 package com.ai.problems.min_set;
 
-import javax.swing.*;
-import java.util.Arrays;
-import java.util.function.IntBinaryOperator;
-
-import static com.ai.problems.min_set.enums.InstanceReader.NumSubsets;
-
 /**
  * Used for evaluating solutions, contains the brunt of the functions that has the purpose of
  * calculating the objective value of the problem.
@@ -23,7 +17,7 @@ public class SolutionEvaluator {
     }
 
     /**
-     * @return objective value of solution
+     * @return calculated objective value of solution
      */
     public int getObjectiveValue() {
         return getSolution().getObjectiveValue();
@@ -37,11 +31,11 @@ public class SolutionEvaluator {
     }
 
     public void setObjectiveValue(int objective_value) {
-        getSolution().setObjectiveValue(objective_value);
+        getSolution().setPureObjectiveValue(objective_value);
     }
 
     public void incrementObjectiveValue(int val) {
-        setObjectiveValue(getObjectiveValue()+val);
+        setObjectiveValue(getSolution().getPureObjectiveValue()+val);
     }
 
     public void setUnaccountedElements(int unaccounted_elements) {
@@ -66,12 +60,11 @@ public class SolutionEvaluator {
     /**
      * Assumes specified input index has been flipped, and calculates new objective value via delta evaluation.
      * Removes need to evaluate the solution's score. Infeasibility is evaluated naturally when inserting to the
-     * solution map. Only O(n) cost is insertion and removal to the solution map.
+     * solution map. O(1)
      * @param index Index of solution bit that has been flipped.
      */
     public void deltaObjectiveEvaluation(int index){
         boolean bit = getSolution().getSolutionData()[index];
-        int[] subset = getSolution().getSolutionMap();
         int sum;
 
         if(bit){
@@ -82,23 +75,8 @@ public class SolutionEvaluator {
             sum=-1;
         }
 
-        int new_unaccount = getUnaccountedElements();
-
-        if(new_unaccount!=0&& getPrevUnaccount()==0){
-            // If going from feasible to unfeasible, add extra cost of infeasible solution.
-            sum+= getSolution().getSolutionData().length + new_unaccount;
-        } else if (new_unaccount==0&&getPrevUnaccount()!=0) {
-            // If going from infeasible to feasible, take away constant cost, and the previous number of unaccounted
-            // elements, to get the proper objective value.
-            sum-= getSolution().getSolutionData().length + getPrevUnaccount();
-        }else {
-            // If going from infeasible to unfeasible, get difference in infeasible elements.
-            sum+=  new_unaccount - getPrevUnaccount();
-        }
         // Perform delta evaluation.
         incrementObjectiveValue(sum);
-        setPrevUnaccount(new_unaccount);
-
     }
 
     /**
@@ -117,27 +95,20 @@ public class SolutionEvaluator {
                 subsetTotal++;
         }
 
-        if(feasibleSolution()==0){
-            setObjectiveValue( subsetTotal );
-        } else {
-            // Include subsetTotal and unaccounted elements, thus shows improvement in two important areas.
-            // Always worse than the worse feasible solution.
-            setObjectiveValue(  getSolution().getSolutionData().length + subsetTotal + getUnaccountedElements() );
-        }
+        setObjectiveValue( subsetTotal );
+        feasibleSolution();
     }
 
     /**
-     * Decides if a solution is feasible or not. O(n).
-     * @return number of elements not connected
+     * Sets number of unaccounted elements. Shouldn't be used outside initialisation. O(n).
      */
-    private int feasibleSolution(){
+    private void feasibleSolution(){
         setUnaccountedElements(0);
         for(int node : getSolutionMap()){
             if(node==0)
                 setUnaccountedElements(getUnaccountedElements()+1);
         }
         setPrevUnaccount(getUnaccountedElements());
-        return getUnaccountedElements();
     }
 
 }
