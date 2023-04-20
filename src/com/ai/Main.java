@@ -19,11 +19,12 @@ public class Main {
          Random ran = new Random(123456789);
          MinSetProblem problem = new MinSetProblem(ran);
        problem.loadInstance("src/test_instances/d1_50_500.txt");
-       HyperHeuristicModifiedChoice hyper_heuristic = new HyperHeuristicModifiedChoice(ran);
-        problem.initialiseSolution(0, 1);
-       hyper_heuristic.applyHyperHeuristic(problem);
+       //HyperHeuristicModifiedChoice hyper_heuristic = new HyperHeuristicModifiedChoice(ran);
+    //    problem.initialiseSolution(0, 1);
+     //  hyper_heuristic.applyHyperHeuristic(problem);
 
-        //TaguchiParameterTuning test = new TaguchiParameterTuning();
+        TaguchiParameterTuning test = new TaguchiParameterTuning();
+        test.startTest("hi.txt");
 
          //problem.getSolution(hyper_heuristic.CURRENT_SOLUTION_INDEX).getEvaluator().setObjectiveValue();
         // System.out.println("I am " + problem.getObjectiveValue(hyper_heuristic.CURRENT_SOLUTION_INDEX));

@@ -25,7 +25,6 @@ public abstract class RuinRecreateHeuristic extends Heuristic{
             tmp = getProblem().getNumberOfSubsets();
         }
         this.intensity = tmp;
-        System.out.println(intensity);
     }
 
     /**

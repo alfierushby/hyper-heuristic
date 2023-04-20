@@ -140,9 +140,9 @@ public class MinSetProblem implements Problem {
 
 
     public void printInfo(int index){
-        System.out.println( "size " + solutions.get(index).getSolutionData().length + " " + Arrays.toString(solutions.get(index).getSolutionData()));
-        System.out.println( "size " + getSolution(index).getSolutionMap().length + " " + Arrays.toString(getSolution(index).getSolutionMap()));
-        System.out.println( "Evaluation : " + getObjectiveValue(index) + " Infeasibility : " + getEvaluator(index).getUnaccountedElements());
+        //System.out.println( "size " + solutions.get(index).getSolutionData().length + " " + Arrays.toString(solutions.get(index).getSolutionData()));
+        //System.out.println( "size " + getSolution(index).getSolutionMap().length + " " + Arrays.toString(getSolution(index).getSolutionMap()));
+        //System.out.println( "Evaluation : " + getObjectiveValue(index) + " Infeasibility : " + getEvaluator(index).getUnaccountedElements());
     }
 
     /**
@@ -195,8 +195,8 @@ public class MinSetProblem implements Problem {
         setSolution(solution.clone(),backup_solution_index);
 
 
-        System.out.println( "Evaluation : " + getEvaluator(current_solution_index).getObjectiveValue() + " Infeasibility : "
-                + getEvaluator(current_solution_index).getUnaccountedElements());
+        //System.out.println( "Evaluation : " + getEvaluator(current_solution_index).getObjectiveValue() + " Infeasibility : "
+         //       + getEvaluator(current_solution_index).getUnaccountedElements());
 
         // Create backup solution:
     }
@@ -260,7 +260,7 @@ public class MinSetProblem implements Problem {
 
                 // Second case, check size 1 and NumSubsets and NumElements are filled.
                 else if(data.size() == 2){
-                    System.out.println(arr[1]);
+              //      System.out.println(arr[1]);
                     data.put(SizeOfSubset,Integer.valueOf(arr[1]));
                     insert_limit = data.get(SizeOfSubset);
                 }

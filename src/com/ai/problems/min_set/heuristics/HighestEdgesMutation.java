@@ -43,7 +43,6 @@ public class HighestEdgesMutation extends IterableHeuristic{
         for(int i=0; i < solution_data.length; i++){
             if(solution_data[i] && getProblem().getSubsets().get(i)[max_index]==1){
                 // It contributes, so we can remove this subset.
-                System.out.println("I am contributing :OOOO");
                 bitFalse(i,sol_index);
                 break;
             }

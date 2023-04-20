@@ -22,7 +22,7 @@ public class Uniform2Point extends CrossoverHeuristic {
         int max = Math.max(ran1,ran2);
         // Max is exclusive to number of subsets so can reach up to length-1 of the array. Thus, inclusive for loop.
         for(int i =min; i<=max; i++){
-            System.out.print("hih " + i);
+           // System.out.print("hih " + i);
             problem.getOperations().exchangeBits(child1,child2,i);
         }
         return new Solution[]{child1,child2};

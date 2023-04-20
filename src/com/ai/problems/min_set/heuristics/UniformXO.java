@@ -20,7 +20,7 @@ public class UniformXO extends CrossoverHeuristic {
         for(int i =0; i<problem.getNumberOfSubsets(); i++){
             double rand = getRng().nextDouble();
             if(rand<=0.5){
-                System.out.print("hih " + i);
+               // System.out.print("hih " + i);
                 problem.getOperations().exchangeBits(child1,child2,i);
             }
         }
