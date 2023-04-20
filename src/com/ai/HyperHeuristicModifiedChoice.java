@@ -315,7 +315,7 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
      */
     double function3(int heuristicId){
         // Time is in milliseconds, so return in seconds.
-        return (double) FUNCTION3_WEIGHT * (getIteration() - getTimes()[heuristicId]);
+        return (double) FUNCTION3_WEIGHT * (System.currentTimeMillis() - getTimes()[heuristicId]);
     }
 
     /**
@@ -436,7 +436,7 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
 
             // Set time for function 3.
             // Set time in milliseconds for accuracy.
-            getTimes()[best_index] = getIteration();
+            getTimes()[best_index] = System.currentTimeMillis();
 
             // Update Phi //
             boolean improved = change_quality > 0;

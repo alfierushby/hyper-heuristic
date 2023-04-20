@@ -25,7 +25,7 @@ import java.util.Random;
 public class TaguchiParameterTuning {
 
     private final int ITERATIONS = 30;
-    private int taguchi_iteration = 0, iteration = 0, instance=0;
+    private int taguchi_iteration = 0, iteration = 0
 
     /**
      * Of form data[i][j][k], where i represents the trial, j represents the instance, and k represents the (formula 1)
@@ -66,7 +66,9 @@ public class TaguchiParameterTuning {
     double[][] weights = {{1,2,5,10,0.5},{1,2,5,10,0.5},{1,2,5,10,0.5},{0.01,0.05,0.1,0.25,0.5},
             {0,0.2,0.4,0.6,0.8},{0,0.2,0.4,0.6,0.8}};
 
-    int[] formula_1 = {25, 18,	15, 12, 10, 8, 6, 4, 2, 1};
+    int[] formula_1 = {25, 18, 15, 12, 10, 8, 6, 4, 2, 1};
+
+    String[] instances = {};
 
     public int[][][] getResult() {
         return result;
@@ -76,12 +78,12 @@ public class TaguchiParameterTuning {
         return iteration;
     }
 
-    public int getInstance() {
-        return instance;
-    }
-
     public void setIteration(int iteration) {
         this.iteration = iteration;
+    }
+
+    public String[] getInstances() {
+        return instances;
     }
 
     public void setResult(int[][][] result) {
@@ -135,32 +137,77 @@ public class TaguchiParameterTuning {
         // Creates the result array for use.
         setResult(new int[ITERATIONS][instances.length][taguchi_array.length]);
 
-        int[] intermediary_result = new int[ITERATIONS];
+        Integer[] intermediary_result = new Integer[ITERATIONS];
+        long seed;
 
-        while(getTaguchiIteration() < taguchi_array.length){
-            int[] taguchi_configuration = getTaguchiArray()[getTaguchiIteration()];
+        // Go through each iteration
+        while(getIteration() < ITERATIONS) {
+
+            // Seed is consistent for each iteration.
+            seed = System.currentTimeMillis();
+
+            // For each iteration go through each instance
+            for(int instance=0; instance<getInstances().length; instance++){
+
+                System.out.println("/////////////////////////////////////////////////////////");
+
+                while(getTaguchiIteration() < taguchi_array.length){
+                    int[] taguchi_configuration = getTaguchiArray()[getTaguchiIteration()];
 
 
-            // Create a hyper heuristic and problem domain
-            Random rng = new Random(System.currentTimeMillis());
-            Problem problem = new MinSetProblem(rng);
+                    // Create a hyper heuristic and problem domain
+                    Random rng = new Random(seed);
+                    Problem problem = new MinSetProblem(rng);
 
-            // Create hyper heuristic.
-            HyperHeuristic hyper_heuristic = new HyperHeuristicModifiedChoice(rng,
-                getWeight(0),getWeight(1)
-                ,getWeight(2),getWeight(3),
-                getWeight(4),getWeight(5));
+                    // Create hyper heuristic.
+                    HyperHeuristic hyper_heuristic = new HyperHeuristicModifiedChoice(rng,
+                            getWeight(0),getWeight(1)
+                            ,getWeight(2),getWeight(3),
+                            getWeight(4),getWeight(5));
 
-            System.out.println("Running hyper heuristic on setting {" + getWeight(0) + "," + getWeight(1)
-                    + "," + getWeight(2) + "," + getWeight(3) + "," +
-                    getWeight(4) + "," +getWeight(5) + "}");
+                    System.out.println("Running hyper heuristic on setting {" + getWeight(0) + ","
+                            + getWeight(1) + "," + getWeight(2) + ","
+                            + getWeight(3) + "," + getWeight(4) + ","
+                            + getWeight(5) + "}");
 
-            hyper_heuristic.applyHyperHeuristic(problem);
-            int best = hyper_heuristic.getBestObjectiveValue();
-            intermediary_result[getTaguchiIteration()] = best;
-            System.out.print("Taguchi:  " + getTaguchiIteration() + ": " + best + " ,");
-            iterateTaguchiIteration();
+                    hyper_heuristic.applyHyperHeuristic(problem);
+                    int best = hyper_heuristic.getBestObjectiveValue();
+                    intermediary_result[getTaguchiIteration()] = best;
+                    System.out.println("Taguchi:  " + getTaguchiIteration() + ": " + best);
+                    iterateTaguchiIteration();
+                }
+
+                // Now sort the index array, ie get an array of form {9,14,...} where intermediary_result[9]
+                // is the highest value in the array.
+                Integer[] index_array = new Integer[ITERATIONS];
+                // First create an index array
+                for(int i = 0; i< ITERATIONS; i++){
+                    index_array[i]=i;
+                }
+                Arrays.sort(index_array, (a,b) ->{
+                    return  intermediary_result[b].compareTo(intermediary_result[a]); // Descending order, b vs a.
+                });
+
+                //Get the array to set.
+                int[] array = getResult()[getIteration()][instance];
+
+                // Assign the top 10 with a score in the data array. The rest will be 0.
+                // Recall that each iteration, for an instance, has an array where each index corresponds to a taguchi
+                // configuration.
+                for(int i = 0; i< formula_1.length; i++){
+                    array[index_array[i]] = formula_1[i];
+                }
+                System.out.println("Formula 1 Scores for " + getIteration() + " iteration, instance " + instance + ", "
+                        + Arrays.toString(array));
+
+                System.out.println("/////////////////////////////////////////////////////////");
+
+            }
+            setIteration(getIteration()+1);
         }
-    
     }
+
+
+
+
 }

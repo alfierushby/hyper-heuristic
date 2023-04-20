@@ -19,9 +19,9 @@ public class Main {
          Random ran = new Random(123456789);
          MinSetProblem problem = new MinSetProblem(ran);
        problem.loadInstance("src/test_instances/d1_50_500.txt");
-       //  HyperHeuristicModifiedChoice hyper_heuristic = new HyperHeuristicModifiedChoice(ran);
+       HyperHeuristicModifiedChoice hyper_heuristic = new HyperHeuristicModifiedChoice(ran);
         problem.initialiseSolution(0, 1);
-      //  hyper_heuristic.applyHyperHeuristic(problem);
+       hyper_heuristic.applyHyperHeuristic(problem);
 
         //TaguchiParameterTuning test = new TaguchiParameterTuning();
 
