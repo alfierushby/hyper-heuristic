@@ -5,6 +5,8 @@ import com.ai.problems.min_set.MinSetProblem;
 
 import java.util.Random;
 
+import static com.ai.Config.INTENSITY_OF_MUTATION;
+
 
 public abstract class RuinRecreateHeuristic extends Heuristic{
     @Override
@@ -20,11 +22,7 @@ public abstract class RuinRecreateHeuristic extends Heuristic{
 
     public RuinRecreateHeuristic(MinSetProblem problem, Random rng) {
         super(problem, rng);
-        int tmp = getProblem().getIntensityOfMutation()*2;
-        if(tmp > getProblem().getNumberOfSubsets()){
-            tmp = getProblem().getNumberOfSubsets();
-        }
-        this.intensity = tmp;
+        this.intensity = (int) (INTENSITY_OF_MUTATION * getProblem().getNumberOfSubsets());
     }
 
     /**

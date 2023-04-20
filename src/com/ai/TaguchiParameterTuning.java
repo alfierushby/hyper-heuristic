@@ -4,6 +4,8 @@ import com.ai.problems.min_set.MinSetProblem;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Objects;
 import java.util.Random;
 
 /**
@@ -14,7 +16,7 @@ import java.util.Random;
  * <br>
  * <b>Function 2 Weight</b>: {1,2,5,10,0.5}
  * <br>
- * <b>Function 3 Weight</b>: {1,2,5,10,0.5}
+ * <b>Time Weight</b>: {1,2,5,10,0.5}
  * <br>
  * <b>Random Initialisation</b>: {0.01,0.05,0.1,0.25,0.5}
  * <br>
@@ -62,14 +64,13 @@ public class TaguchiParameterTuning {
             {5, 4, 3, 2, 1, 5 },
             {5, 5, 4, 3, 2, 1 }};
 
-    // Follows form function1, function2, function3, random_initialisation, depth_of_search & intensity_of_mutation.
-    double[][] weights = {{1,2,5,10,0.5},{1,2,5,10,0.5},{1,2,5,10,0.5},{0.01,0.05,0.1,0.25,0.5},
+    // Follows form function1, function2, time_weight, random_initialisation, depth_of_search & intensity_of_mutation.
+    double[][] weights = {{1,2,3,4,5},{1,2,3,4,5},{1,2,3,4,5},{0.1,0.2,0.3,0.4,0.5},
             {0,0.2,0.4,0.6,0.8},{0,0.2,0.4,0.6,0.8}};
 
     int[] formula_1 = {25, 18, 15, 12, 10, 8, 6, 4, 2, 1};
 
-    String[] instances = {"src/test_instances/d1_50_500.txt","src/test_instances/d2_50_500.txt",
-            "src/test_instances/d3_511_210.txt","src/test_instances/d4_2047_495.txt"};
+    String[] instances = {"src/test_instances/d1_50_500.txt","src/test_instances/d2_50_500.txt"};
 
     public int[][][] getResult() {
         return result;
@@ -141,7 +142,7 @@ public class TaguchiParameterTuning {
         Integer[] intermediary_result = new Integer[taguchi_array.length];
         long seed;
 
-        // Make a scores array, where scores[i][j][k] correspond for the ith variable weight being modified, and j
+        // Make a scores array, where scores[i][j][k] correspond for the ith weight being modified, and j
         // represents the scores of said weight when set to the index in weights.
         // So, for i=0, pick {1,2,5,10,0.5}, where j=1 corresponds to all the scores claimed
         // when variable 1 had a value of 2.
@@ -195,9 +196,8 @@ public class TaguchiParameterTuning {
                 for(int i = 0; i< taguchi_array.length; i++){
                     index_array[i]=i;
                 }
-                Arrays.sort(index_array, (a,b) ->{
-                    return  intermediary_result[b].compareTo(intermediary_result[a]); // Descending order, b vs a.
-                });
+                // Ascending order, where the smallest value is the best.
+                Arrays.sort(index_array, Comparator.comparing(a -> intermediary_result[a]));
 
                 //Get the array to set.
                 int[] array = getResult()[getIteration()][instance];
@@ -205,8 +205,11 @@ public class TaguchiParameterTuning {
                 // Assign the top 10 with a score in the data array. The rest will be 0.
                 // Recall that each iteration, for an instance, has an array where each index corresponds to a taguchi
                 // configuration.
-                for(int i = 0; i< formula_1.length; i++){
-                    array[index_array[i]] = formula_1[i];
+                int formula_1_index = 0;
+                for(int i = 0; i< array.length; i++){
+                    array[index_array[i]] = formula_1[formula_1_index];
+                    if(i+1< array.length && !Objects.equals(intermediary_result[index_array[i]], intermediary_result[index_array[i+1]]))
+                        formula_1_index++;
                 }
                 System.out.println("Formula 1 Scores for " + getIteration() + " iteration, instance " + instance + ", "
                         + Arrays.toString(array));
@@ -235,24 +238,22 @@ public class TaguchiParameterTuning {
             }
             setIteration(getIteration()+1);
         }
-
-        int num_weights = getWeights()[0].length;
         // For each weight, 0 corresponds to the best variable config, and 1 is the average score it had.
-        double[][] best_variables = new double[num_weights][2];
-        // Now go through each variable and find the one with the highest score.
-        for(int i = 0; i<getWeights().length; i++) {
-          // Where i is the variable name, go through each weight.
-          double[] weights = getWeights()[i];
+        double[][] best_variables = new double[getWeights().length][2];
+        // Now go through each weight and find the one with the highest score.
+        for(int i = 0; i<scores.length; i++) {
           // 0 corresponds to the variable config, and 1 corresponds to the average score.
           double[] best_average_pair = new double[2];
-          for(int j = 0; j<num_weights; j++){
+          best_average_pair[0]= (double) scores[i][0][0] /scores[i][0][1];
+          for(int j = 0; j<scores[i].length; j++){
               // Where j is the weight configuration. Ie, i=0,j=0 states that from weight 0, {1,2,5,10,0.5}, what was
               // its score when it was equal to '1'.
               int[] score = scores[i][j];
               double avg = (double) score[0] /score[1];
+              System.out.println("Score " + score[0] + " num " + score[1] + "avg " +avg);
               if(avg>best_average_pair[0]){
-                  best_average_pair[0]=j;
-                  best_average_pair[1]=avg;
+                  best_average_pair[0]=avg;
+                  best_average_pair[1]=j;
 
               }
           }
@@ -261,8 +262,9 @@ public class TaguchiParameterTuning {
         }
         int var = 0;
         for(double[] pair : best_variables){
-            System.out.println("Weight: " + var + ", Best Setting: " + getWeights()[var][(int) pair[0]] + " With Average: "
-            + pair[1]);
+            System.out.println("Weight: " + var + ", Best Setting: " + getWeights()[var][(int) pair[1]] + " With Average: "
+            + pair[0]);
+            var++;
         }
 
     }

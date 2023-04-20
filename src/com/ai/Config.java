@@ -5,7 +5,7 @@ package com.ai;
  * for parameter tuning for a hyper heuristic.
  */
 public class Config {
-    public static double RANDOM_INTIALISATION = .01;
-    public static double DEPTH_OF_SEARCH = .5;
-    public static double INTENSITY_OF_MUTATION =.75;;
+    public static double RANDOM_INTIALISATION = 0.5;
+    public static double DEPTH_OF_SEARCH = 0;
+    public static double INTENSITY_OF_MUTATION =0.6;
 }
