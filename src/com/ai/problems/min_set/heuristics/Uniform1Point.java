@@ -16,9 +16,9 @@ public class Uniform1Point extends CrossoverHeuristic {
         Solution child2 = problem.getSolution(parent2_index).clone();
 
         int ran = getRng().nextInt(problem.getNumberOfSubsets());
-        //System.out.println("ran : " + ran);
+        System.out.println("ran : " + ran);
         for(int i =ran; i<problem.getNumberOfSubsets(); i++){
-           // System.out.print("hih " + i);
+            System.out.print("hih " + i);
             problem.getOperations().exchangeBits(child1,child2,i);
         }
         return new Solution[]{child1,child2};

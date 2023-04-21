@@ -20,12 +20,12 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
     int max_number_of=100;
     Random rng;
     int best_objective_value, current_objective_value, iteration=0;
-    final int offset = 5, max_best_heuristics = 5;
+    final int offset = 5, max_best_heuristics = 4;
     public final int CURRENT_SOLUTION_INDEX = 0;
     public final int BACKUP_SOLUTION_INDEX = 1;
-    public double TIME_WEIGHT = 5;
-    public double FUNCTION2_WEIGHT = 2;
-    public double FUNCTION1_WEIGHT = 2;
+    public double TIME_WEIGHT = 4;
+    public double PHI_WEIGHT = 0.2;
+    public double FUNCTION_3_WEIGHT = 3;
     Problem problem_domain;
     HeuristicData prev_heuristic;
     ArrayList<Double> phis= new ArrayList<>();
@@ -159,18 +159,18 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
      * Used for parameter tuning of the hyper heuristic. Every variable beyond rng modifies the functionality of the
      * hyper heuristic.
      * @param rng
-     * @param function_1_weight The weight of the first function
-     * @param function_2_weight The weight of the second function
+     * @param phi_weight The weight of the constant phi in the function 1 & 2
+     * @param function3_weight The weight of the constant delta in function 3
      * @param time_weight The weight of the third function
      * @param random_initialisation The value 0-1 defining the probability of a variable being assigned 1 in the solution initialisation.
      * @param depth_of_search 0-1, determines the intensity of hill climbing.
      * @param intensity_of_mutation 0-1, determines the intensity of mutation.
      */
-    public HyperHeuristicModifiedChoice(Random rng, double function_1_weight, double function_2_weight, double time_weight,
+    public HyperHeuristicModifiedChoice(Random rng, double phi_weight, double function3_weight, double time_weight,
                                         double random_initialisation, double depth_of_search, double intensity_of_mutation){
         this(rng);
-        this.FUNCTION1_WEIGHT = function_1_weight;
-        this.FUNCTION2_WEIGHT = function_2_weight;
+        this.PHI_WEIGHT = phi_weight;
+        this.FUNCTION_3_WEIGHT = function3_weight;
         this.TIME_WEIGHT = time_weight;
 
         RANDOM_INTIALISATION = random_initialisation;
@@ -201,36 +201,36 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
     /**
      * Compares the input solution with the best of X solutions, adding if it is better
      * or if there is an available space.
+     *
      * @param solution_id Id of heuristic to maybe add to the best of X heuristics.
      */
-    private int modifyBestSolutionList(int solution_id){
+    private void modifyBestSolutionList(int solution_id){
         // Create data for use. Uses another specific structure. I wonder if generics exist? I wouldn't know.
 
         ArrayList<SolutionObjective> solutions = getBestSolutions();
         int len = solutions.size();
-
+        int objective_value = getProblemDomain().getObjectiveValue(solution_id);
         if(len < getMaxBestHeuristics()){
-            int objective_value = getProblemDomain().getObjectiveValue(solution_id);
             // Data is unordered as it is randomly picked from.
             // Copy data to the offset data location that is expected to not change.
             getProblemDomain().copySolution(solution_id,len+offset);
             // Add the record of this best solution.
             getBestSolutions().add(new SolutionObjective(len+offset,objective_value));
-            return len;
+            return;
         }
 
         // NEEDS CHECKING!
+        //System.out.println("Hi thee, array of solutions: " + solutions);
         Optional<SolutionObjective> worst = solutions.stream().max(Comparator.comparingInt(SolutionObjective::objectiveValue));
-        if(worst.isPresent()){
+        //System.out.println("Worst " + worst);
+        if(worst.isPresent()  && worst.get().objectiveValue() >= objective_value){
             int i = solutions.indexOf(worst.get());
             // Replace solution in memory.
             getProblemDomain().copySolution(solution_id,worst.get().solutionId());
             // Replace data with newComparator.comparingInt objective value.
-            solutions.set(i,new SolutionObjective(worst.get().solutionId(), getProblemDomain().getObjectiveValue(solution_id)));
-            return i;
-        } else{
+            solutions.set(i,new SolutionObjective(worst.get().solutionId(), objective_value));
+        } else if (worst.isEmpty()){
             System.out.println("Fatal error detected in modifying best solution list!");
-            return -1;
         }
     }
 
@@ -244,10 +244,9 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
         int len = solutions.size();
         crossoverCalled++;
         if(len==0 || Math.floorMod(crossoverCalled,getMaxBestHeuristics()) == 0){
-           // System.out.println("Uh what!");
             getProblemDomain().initialiseSolution(BACKUP_SOLUTION_INDEX,BACKUP_SOLUTION_INDEX);
-            // Add it to the set of solutions.
-            return  solutions.get(modifyBestSolutionList(BACKUP_SOLUTION_INDEX)).solutionId();
+            // Send back in the backup index that won't be modified during crossover (thereafter this solution is null)
+            return  BACKUP_SOLUTION_INDEX;
         }
         // Single point methods work on saving to current solution at end of iteration.
         int ran = getRng().nextInt(len);
@@ -260,7 +259,6 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
      * @return
      */
     private double generalComputationFunction(ArrayList<TimeObjectiveValue> time_data){
-        double phi_val = getPhis().get(getIteration());
 
         // first time_data items are older, thus have a lower weight placed on them from phi.
         int len = time_data.size();
@@ -275,24 +273,26 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
 
         // So, the oldest elements have the largest power.
         for (TimeObjectiveValue data : time_data){
-            double phi_weighted = Math.pow(phi_val,n);
+            double phi_weighted = Math.pow(PHI_WEIGHT,n);
             double time =  (double) TIME_WEIGHT*data.Time();
             double obj = data.ObjectiveValue();
+            if(obj<0)
+                obj=0;
             if(time == 0)
                 time = 1;
-            total += phi_weighted * obj/time;
+            total += phi_weighted * obj;
             n--;
         }
         return total;
     }
     /**
      * This is the first function, f1, in the modified choice function.
-     * @param heuristicId The heuristic to apply the function to
+     * @param heuristicId The heuristic to aDELTA_WEIGHTpply the function to
      * @return The value of the function
      */
     double function1(int heuristicId){
         ArrayList<TimeObjectiveValue> time_data = getHeuristicSingleData().get(heuristicId);
-        return FUNCTION1_WEIGHT * generalComputationFunction(time_data);
+        return generalComputationFunction(time_data);
     }
 
     /**
@@ -306,7 +306,7 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
         HeuristicPair index = new HeuristicPair(heuristicK,heuristicJ);
         ArrayList<TimeObjectiveValue> time_data = getFollowHeuristicTimes().get(index);
         if(time_data != null)
-            return FUNCTION2_WEIGHT*generalComputationFunction(time_data);
+            return generalComputationFunction(time_data);
         return 0;
     }
 
@@ -316,7 +316,7 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
      */
     double function3(int heuristicId){
         // Time is in milliseconds, so return in seconds.
-        return (double) TIME_WEIGHT * (getIteration() -  getTimes()[heuristicId]);
+        return (double) FUNCTION_3_WEIGHT * (getIteration() -  getTimes()[heuristicId]);
     }
 
     /**
@@ -341,7 +341,7 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
         int len = getHeuristics().size();
         setBestObjectiveValue(getProblemDomain().getObjectiveValue(CURRENT_SOLUTION_INDEX));
 
-        while(System.currentTimeMillis() < new_time){
+        while(getIteration() < 10000){
             double phi = getPhis().get(getIteration());
             double delta = getDelta(getIteration());
 
@@ -359,11 +359,15 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
                 double score = f1 + f2 + f3;
                 boolean choose = false;
 
-                System.out.println(" heuristic ID " + id + " with a score of " + f1 + " + " + f2 + " + " + f3);
+               // System.out.println(" heuristic ID " + id + " with a score of " + f1 + " + " + f2 + " + " + f3);
 
                 // Decide to choose
                 if(score > best_score){
                     choose = true;
+                } else if (score == best_score){
+                    double ran = getRng().nextDouble();
+                    if(ran<0.5)
+                        choose= true;
                 }
 
                 if(choose){
@@ -372,7 +376,7 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
                 }
             }
 
-            System.out.println("Picked heuristic ID " + best_index + " with a score of " + best_score);
+            //System.out.println("Picked heuristic ID " + best_index + " with a score of " + best_score);
             int prev_objective_value = getProblemDomain().getObjectiveValue(CURRENT_SOLUTION_INDEX);
             // Apply heuristic. //
 
@@ -381,8 +385,8 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
             if(heuristic.getHeuristicClass() == Crossover){
                 CrossoverHeuristic cross_heuristic = (CrossoverHeuristic) heuristic;
                 int parent2 = getRandomBestSolution();
-               System.out.println("Doing crossover");
-               System.out.println("Chose random solution " + parent2);
+               //System.out.println("Doing crossover");
+               //System.out.println("Chose random solution " + parent2);
                 cross_heuristic.applyHeuristic(CURRENT_SOLUTION_INDEX,parent2,CURRENT_SOLUTION_INDEX);
             } else {
                 heuristic.applyHeuristic(CURRENT_SOLUTION_INDEX,CURRENT_SOLUTION_INDEX);
@@ -394,7 +398,6 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
             setCurrentObjectiveValue(getProblemDomain().getObjectiveValue(CURRENT_SOLUTION_INDEX));
 
             // Add data for next iteration //
-
             // Add data for best solution
             modifyBestSolutionList(CURRENT_SOLUTION_INDEX);
 
@@ -402,8 +405,8 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
             // Change in quality. Positive indicates an improvement (from a higher to lower objective value).
             int  change_quality = prev_objective_value- getCurrentObjectiveValue();
 
-                System.out.println("Score changed from " +  prev_objective_value + " to " +
-            getProblemDomain().getObjectiveValue(CURRENT_SOLUTION_INDEX) + " with a change of " + change_quality + " " + change_time);
+           //     System.out.println("Score changed from " +  prev_objective_value + " to " +
+           // getProblemDomain().getObjectiveValue(CURRENT_SOLUTION_INDEX) + " with a change of " + change_quality + " " + change_time);
 
             // Multiply by 1 or -1 depending on whether the problem domain is a minimization or maximisation problem.
             // 1 entails it is a minimization problem.
@@ -420,8 +423,8 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
 
                 ArrayList<TimeObjectiveValue> time_data = getFollowHeuristicTimes().get(key);
 
-               System.out.println("Previous run heuristic id " + prev_heuristic.heuristicID() + " change in objective" +
-                        "value is " + change_quality);
+              //System.out.println("Previous run heuristic id " + prev_heuristic.heuristicID() + " change in objective" +
+              //         "value is " + change_quality);
 
                 // Add data
                 time_data.add(new TimeObjectiveValue(change_time,change_quality));
@@ -434,7 +437,7 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
             // Update Phi //
             boolean improved = change_quality > 0;
 
-            System.out.println("Solution improved " + improved);
+           // System.out.println("Solution improved " + improved);
 
             if(improved)
                 getPhis().add(0.99);
@@ -453,7 +456,7 @@ public class HyperHeuristicModifiedChoice implements HyperHeuristic{
             incrementIteration();
         }
 
-        System.out.println("Best objective value " + getBestObjectiveValue());
+         //System.out.println("Best objective value " + getBestObjectiveValue());
         // check
 
     }

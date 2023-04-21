@@ -39,11 +39,11 @@ public abstract class CrossoverHeuristic extends Heuristic {
     public  void applyHeuristic(int parent1_index, int parent2_index, int child_index){
         Solution[] children = applyHeuristicSingle(parent1_index,parent2_index);
         if(children[0].getEvaluator().getObjectiveValue()<children[1].getEvaluator().getObjectiveValue()){
-           // System.out.println("Chose child 0");
+            System.out.println("Chose child 0");
             getProblem().setSolution(children[0],child_index);
         }
         else{
-          //  System.out.println("Chose child1");
+            System.out.println("Chose child1");
             getProblem().setSolution(children[1],child_index);
         }
     }

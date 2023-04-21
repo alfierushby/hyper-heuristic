@@ -22,9 +22,6 @@ public class RuinRecreateHighest extends RuinRecreateHeuristic{
     public void applyHeuristicSingle(int save_index) {
         int len = getProblem().getNumberOfSubsets();
         int ran = getRng().nextInt(len);
-        int amount = ran+getIntensity();
-        if(amount>len)
-            amount=len;
         for(int i=ran;i<ran+getIntensity();i++){
             bitFalse(Math.floorMod(i,len),save_index);
         }

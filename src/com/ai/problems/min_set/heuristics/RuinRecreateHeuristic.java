@@ -22,7 +22,9 @@ public abstract class RuinRecreateHeuristic extends Heuristic{
 
     public RuinRecreateHeuristic(MinSetProblem problem, Random rng) {
         super(problem, rng);
-        this.intensity = (int) (INTENSITY_OF_MUTATION * getProblem().getNumberOfSubsets());
+        this.intensity = (int) getProblem().getIntensityOfMutation()*2;
+        if(intensity>getProblem().getNumberOfSubsets())
+            this.intensity = getProblem().getNumberOfSubsets();
     }
 
     /**

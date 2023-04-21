@@ -140,9 +140,9 @@ public class MinSetProblem implements Problem {
 
 
     public void printInfo(int index){
-        //System.out.println( "size " + solutions.get(index).getSolutionData().length + " " + Arrays.toString(solutions.get(index).getSolutionData()));
-        //System.out.println( "size " + getSolution(index).getSolutionMap().length + " " + Arrays.toString(getSolution(index).getSolutionMap()));
-        //System.out.println( "Evaluation : " + getObjectiveValue(index) + " Infeasibility : " + getEvaluator(index).getUnaccountedElements());
+        System.out.println( "size " + solutions.get(index).getSolutionData().length + " " + Arrays.toString(solutions.get(index).getSolutionData()));
+        System.out.println( "size " + getSolution(index).getSolutionMap().length + " " + Arrays.toString(getSolution(index).getSolutionMap()));
+        System.out.println( "Evaluation : " + getObjectiveValue(index) + " Infeasibility : " + getEvaluator(index).getUnaccountedElements());
     }
 
     /**

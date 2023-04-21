@@ -18,7 +18,6 @@ public class RuinRecreateLowest extends RuinRecreateHeuristic{
     public void applyHeuristicSingle(int save_index) {
         int len = problem.getNumberOfSubsets();
         int ran = getRng().nextInt(len);
-        int amount = ran-getIntensity();
         for(int i=ran;i>ran-getIntensity();i--){
             if(i>0){
                 bitFalse(i,save_index);

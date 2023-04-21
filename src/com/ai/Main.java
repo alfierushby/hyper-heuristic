@@ -18,23 +18,29 @@ public class Main {
     public static void main(String[] args) {
          Random ran = new Random(123456789);
          MinSetProblem problem = new MinSetProblem(ran);
-         problem.loadInstance("src/test_instances/d2_50_500.txt");
-       HyperHeuristicModifiedChoice hyper_heuristic = new HyperHeuristicModifiedChoice(ran);
-    //    problem.initialiseSolution(0, 1);
-     hyper_heuristic.applyHyperHeuristic(problem);
+         problem.loadInstance("src/test_instances/d1_50_500.txt");
+        HyperHeuristicModifiedChoice hyper_heuristic = new HyperHeuristicModifiedChoice(ran);
+         //   problem.initialiseSolution(0, 1);
+        hyper_heuristic.applyHyperHeuristic(problem);
 
-      //  TaguchiParameterTuning test = new TaguchiParameterTuning();
-       // test.startTest("hi.txt");
+       // TaguchiParameterTuning test = new TaguchiParameterTuning();
+        //test.startTest("hi.txt");
 
          //problem.getSolution(hyper_heuristic.CURRENT_SOLUTION_INDEX).getEvaluator().setObjectiveValue();
         // System.out.println("I am " + problem.getObjectiveValue(hyper_heuristic.CURRENT_SOLUTION_INDEX));
 //
 //        IterableHeuristic[] mutation = (IterableHeuristic[]) problem.getHeuristics(Mutational);
-//        IterableHeuristic[] hill_climbing = (IterableHeuristic[]) problem.getHeuristics(Hill_Climbing);
-//        CrossoverHeuristic[] crossover = (CrossoverHeuristic[]) problem.getHeuristics(Crossover);
-//        RuinRecreateHeuristic[] ruins = (RuinRecreateHeuristic[]) problem.getHeuristics(Ruin_and_Recreate);
+        IterableHeuristic[] hill_climbing = (IterableHeuristic[]) problem.getHeuristics(Hill_Climbing);
+         CrossoverHeuristic[] crossover = (CrossoverHeuristic[]) problem.getHeuristics(Crossover);
+       RuinRecreateHeuristic[] ruins = (RuinRecreateHeuristic[]) problem.getHeuristics(Ruin_and_Recreate);
 //        problem.getOperations().bitFlip(0,CURRENT_SOLUTION_INDEX,CURRENT_SOLUTION_INDEX);
 //        hill_climbing[0].applyHeuristic(CURRENT_SOLUTION_INDEX,CURRENT_SOLUTION_INDEX);
+//        problem.printInfo(BACKUP_SOLUTION_INDEX);
+//        hill_climbing[0].applyHeuristic(CURRENT_SOLUTION_INDEX,BACKUP_SOLUTION_INDEX);
+//        problem.printInfo(BACKUP_SOLUTION_INDEX);
+//        problem.printInfo(CURRENT_SOLUTION_INDEX);
+//        crossover[2].applyHeuristic(CURRENT_SOLUTION_INDEX,BACKUP_SOLUTION_INDEX,CURRENT_SOLUTION_INDEX);
+//        problem.printInfo(BACKUP_SOLUTION_INDEX);
 //        problem.printInfo(CURRENT_SOLUTION_INDEX);
 //        problem.getEvaluator(CURRENT_SOLUTION_INDEX).setObjectiveValue();
 //        problem.printInfo(CURRENT_SOLUTION_INDEX);

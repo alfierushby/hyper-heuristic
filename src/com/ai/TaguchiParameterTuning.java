@@ -3,18 +3,15 @@ package com.ai;
 import com.ai.problems.min_set.MinSetProblem;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Performs a L25 taguchi array test. Does 30 trials on each instance for 20 seconds, averaging the resulting best objective
  * value. Variables to modify are:
  * <br><br>
- * <b>Function 1 Weight</b>: {1,2,5,10,0.5}
+ * <b>Phi Weight</b>: {0.2,0.4,0.6,0.8,0.99}
  * <br>
- * <b>Function 2 Weight</b>: {1,2,5,10,0.5}
+ * <b>Function 3 Weight</b>: {1,2,3,4,5}
  * <br>
  * <b>Time Weight</b>: {1,2,5,10,0.5}
  * <br>
@@ -64,8 +61,11 @@ public class TaguchiParameterTuning {
             {5, 4, 3, 2, 1, 5 },
             {5, 5, 4, 3, 2, 1 }};
 
-    // Follows form function1, function2, time_weight, random_initialisation, depth_of_search & intensity_of_mutation.
-    double[][] weights = {{1,2,3,4,5},{1,2,3,4,5},{1,2,3,4,5},{0.1,0.2,0.3,0.4,0.5},
+    // Expected use of taguchi array, shuffled to improve experiment reliability.
+    ArrayList<int[]> taguchi_shuffled;
+
+    // Follows form PHI_WEIGHT, Function3_weight, time_weight, random_initialisation, depth_of_search & intensity_of_mutation.
+    double[][] weights = {{0.2,0.4,0.6,0.8,0.99},{1,2,3,4,5},{1,2,3,4,5},{0.1,0.2,0.3,0.4,0.5},
             {0,0.2,0.4,0.6,0.8},{0,0.2,0.4,0.6,0.8}};
 
     int[] formula_1 = {25, 18, 15, 12, 10, 8, 6, 4, 2, 1};
@@ -96,6 +96,18 @@ public class TaguchiParameterTuning {
         return taguchi_array;
     }
 
+    /**
+     * This is the expected use case of the taguchi array. Do not use the default version!
+     * @return Shuffled taguchi array, should be set before test starts.
+     */
+    public ArrayList<int[]> getTaguchiShuffled() {
+        return taguchi_shuffled;
+    }
+
+    public void setTaguchiShuffled(ArrayList<int[]> taguchi_shuffled) {
+        this.taguchi_shuffled = taguchi_shuffled;
+    }
+
     public int getTaguchiIteration() {
         return taguchi_iteration;
     }
@@ -115,21 +127,32 @@ public class TaguchiParameterTuning {
         return weights;
     }
 
-    public TaguchiParameterTuning() {
-       System.out.println("Hi " +  getWeight(2));
-    }
 
     /**
      * From the taguchi iteration, we get what weight we should pick specified by the weight_function index. From this,
      * we then go to the weights array and pick the actual value.
-     * So, if the taguchi array stated '3' for weight index 0 (function 1), then it will return 5 with it being an index
+     * So, if the taguchi array stated '3' for weight index 0 (phi_weight), then it will return 5 with it being an index
      * of 2 in the weight array.
      * @param weight_function_index This specifies what function to choose a weight for
      * @return The actual weight for that specific function.
      */
     private double getWeight(int weight_function_index){
-        return getWeights()[weight_function_index][getTaguchiArray()[getTaguchiIteration()][weight_function_index]-1];
+        return getWeights()[weight_function_index][getTaguchiShuffled().get(getTaguchiIteration())[weight_function_index]-1];
     }
+
+    private ArrayList<int[]> createRandomPermutation(int[][] array){
+        Random shuffle_ran = new Random(System.currentTimeMillis());
+        ArrayList<int[]> to_shuffle = new ArrayList<>(Arrays.asList(array));
+        int len = to_shuffle.size();
+        for(int i = 0; i<len; i++){
+            int ran = shuffle_ran.nextInt(0,len);
+            int[] temp_v = to_shuffle.get(i);
+            to_shuffle.set(i,to_shuffle.get(ran));
+            to_shuffle.set(ran, temp_v);
+        }
+        return to_shuffle;
+    }
+
 
     /**
      * Starts the test on the specified problem domain.
@@ -137,9 +160,9 @@ public class TaguchiParameterTuning {
      */
     void startTest(String file_name) {
         // Creates the result array for use.
-        setResult(new int[ITERATIONS][getInstances().length][taguchi_array.length]);
+        setResult(new int[ITERATIONS][getInstances().length][getTaguchiArray().length]);
 
-        Integer[] intermediary_result = new Integer[taguchi_array.length];
+        Integer[] intermediary_result = new Integer[getTaguchiArray().length];
         long seed;
 
         // Make a scores array, where scores[i][j][k] correspond for the ith weight being modified, and j
@@ -149,8 +172,12 @@ public class TaguchiParameterTuning {
         // k=0 corresponds to the total score, and k=1 corresponds to the number of scores added.
         int scores[][][] = new int[getWeights().length][getWeights()[0].length][2];
 
+
         // Go through each iteration
         while(getIteration() < ITERATIONS) {
+
+            //Get shuffled taguchi array
+            setTaguchiShuffled(createRandomPermutation(getTaguchiArray()));
 
             // Seed is consistent for each iteration.
             seed = System.currentTimeMillis();
@@ -162,8 +189,8 @@ public class TaguchiParameterTuning {
                 setTaguchIteration(0);
 
                 System.out.println("/////////////////////////////////////////////////////////");
-                while(getTaguchiIteration() < taguchi_array.length){
-                    int[] taguchi_configuration = getTaguchiArray()[getTaguchiIteration()];
+                while(getTaguchiIteration() < getTaguchiShuffled().size()){
+                    int[] taguchi_configuration = getTaguchiShuffled().get(getTaguchiIteration());
 
 
                     // Create a hyper heuristic and problem domain
@@ -191,9 +218,9 @@ public class TaguchiParameterTuning {
 
                 // Now sort the index array, ie get an array of form {9,14,...} where intermediary_result[9]
                 // is the highest value in the array.
-                Integer[] index_array = new Integer[taguchi_array.length];
+                Integer[] index_array = new Integer[getTaguchiShuffled().size()];
                 // First create an index array
-                for(int i = 0; i< taguchi_array.length; i++){
+                for(int i = 0; i< getTaguchiShuffled().size(); i++){
                     index_array[i]=i;
                 }
                 // Ascending order, where the smallest value is the best.
@@ -216,9 +243,9 @@ public class TaguchiParameterTuning {
 
                 // Add scores. Ie, go through each taguchi configuration, and index the scores array to add the scores
                 // for each variable setting.
-                for(int i = 0; i<getTaguchiArray().length; i++){
+                for(int i = 0; i<getTaguchiShuffled().size(); i++){
                     // Get the taguchi configuration (index version)
-                    int[] taguchi_config = getTaguchiArray()[i]; // Note the index should be offset by -1.
+                    int[] taguchi_config = getTaguchiShuffled().get(i); // Note the index should be offset by -1.
                     int score = array[i]; // Score of this taguchi configuration.
                     // Add score to the corresponding variables.
                     for(int index = 0; index<taguchi_config.length; index++){
