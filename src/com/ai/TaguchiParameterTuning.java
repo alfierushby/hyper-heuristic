@@ -11,11 +11,11 @@ import java.util.*;
  * <br><br>
  * <b>Phi Weight</b>: {0.2,0.4,0.6,0.8,0.99}
  * <br>
- * <b>Function 3 Weight</b>: {1,2,3,4,5}
+ * <b>Function 1 Weight</b>: {0.2,0.4,0.6,0.8,1}
  * <br>
- * <b>Time Weight</b>: {1,2,5,10,0.5}
+ * <b>Function 2 Weight</b>:  {0.2,0.4,0.6,0.8,1}
  * <br>
- * <b>Random Initialisation</b>: {0.01,0.05,0.1,0.25,0.5}
+ * <b>Function 3 Weight</b>: {0.2,0.4,0.6,0.8,1}
  * <br>
  * <b>Depth of Search </b>: {0,0.2,0.4,0.6,0.8}
  * <br
@@ -23,7 +23,7 @@ import java.util.*;
  */
 public class TaguchiParameterTuning {
 
-    private final int ITERATIONS = 30;
+    private final int ITERATIONS = 15;
     private int taguchi_iteration = 0, iteration = 0;
 
     /**
@@ -64,8 +64,8 @@ public class TaguchiParameterTuning {
     // Expected use of taguchi array, shuffled to improve experiment reliability.
     ArrayList<int[]> taguchi_shuffled;
 
-    // Follows form PHI_WEIGHT, Function3_weight, time_weight, random_initialisation, depth_of_search & intensity_of_mutation.
-    double[][] weights = {{0.2,0.4,0.6,0.8,0.99},{1,2,3,4,5},{1,2,3,4,5},{0.1,0.2,0.3,0.4,0.5},
+    // Follows form PHI_WEIGHT, Function_1_weight, Function_2_weight, Function_3_weight, depth_of_search & intensity_of_mutation.
+    double[][] weights = {{0.2,0.4,0.6,0.8,0.99}, {0.2,0.4,0.6,0.8,1}, {0.2,0.4,0.6,0.8,1}, {0.2,0.4,0.6,0.8,1},
             {0,0.2,0.4,0.6,0.8},{0,0.2,0.4,0.6,0.8}};
 
     int[] formula_1 = {25, 18, 15, 12, 10, 8, 6, 4, 2, 1};
