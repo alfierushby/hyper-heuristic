@@ -1,10 +1,6 @@
 # Using the hyper-heuristic.
 The hyper-heuristic can be run via 3 different methods. You can directly run it by creating it, run it via the 'FileOutput' class, or perform parameter tuning with the 'TaguchiParameterTuning' class.
 
-## DEBUG Mode
-If you require the hyper heuristic to output to the console with its implementation specific information (function values, etc) set
-DEBUG to true in the Config class.
-
 ## Directly Running
 To directly run the hyper heuristic, the following code will work:
              
@@ -17,7 +13,7 @@ To directly run the hyper heuristic, the following code will work:
 This will load the 4th instance, and the results/running values will be displayed in the console. 
 
 ## Running via the 'FileOutput' class
-To do this, simple run:
+To do this, run:
 
     FileOutput runner = new FileOutput();
     runner.run("d2_50_500");
@@ -31,3 +27,7 @@ To do this, run:
     test.startTest();
 
 It is recommended to set DEBUG to false to see the results of the tuning. Modify the hyper heuristic termination conditions in its class for differing run lengths.
+
+## DEBUG Mode
+If you require the hyper heuristic to output to the console with its implementation specific information (function values, etc) set
+DEBUG to true in the Config class.
