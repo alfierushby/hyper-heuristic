@@ -1,5 +1,5 @@
 # Using the hyper-heuristic.
-The hyper-heuristic can be run via 3 different methods. You can directly run it by creating it, run it via the 'FileOutput' class, or perform parameter tuning with the 'TaguchiParameterTuning'
+The hyper-heuristic can be run via 3 different methods. You can directly run it by creating it, run it via the 'FileOutput' class, or perform parameter tuning with the 'TaguchiParameterTuning' class.
 
 ## Directly Running
 To directly run the hyper heuristic, the following code will work:
