@@ -10,7 +10,7 @@ To directly run the hyper heuristic, the following code will work:
     HyperHeuristicModifiedChoice hyper_heuristic = new HyperHeuristicModifiedChoice(ran);
     hyper_heuristic.applyHyperHeuristic(problem);
 
-This will load the 4th instance, and the results/running values will be displayed in the console. 
+This will load the 4th instance, and the results/running values will be displayed in the console. It is recommended that DEBUG is set to true to see the results of the run.
 
 ## Running via the 'FileOutput' class
 To do this, run:
