@@ -2,6 +2,7 @@ package com.ai.problems.min_set.heuristics;
 
 import com.ai.HeuristicClasses;
 import com.ai.problems.min_set.MinSetProblem;
+import com.ai.problems.min_set.Solution;
 
 import java.util.Random;
 
@@ -37,6 +38,15 @@ public abstract class RuinRecreateHeuristic extends Heuristic{
     @Override
     public void applyHeuristic(int sol_index, int save_index) {
         getProblem().copySolution(sol_index,save_index);
+        // Ruin solution
         applyHeuristicSingle(save_index);
+        // Recreate solution
+        Solution sol = getProblem().getSolution(save_index);
+        boolean[] sol_data = sol.getSolutionData();
+        while(sol.getUnaccountedElements()>0){
+            int ran_index = getRng().nextInt(getProblem().getNumberOfSubsets());
+            if(!sol_data[ran_index])
+                getProblem().getOperations().bitFlip(ran_index,save_index);
+        }
     }
 }

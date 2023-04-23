@@ -6,6 +6,9 @@ import com.ai.problems.min_set.Solution;
 
 import java.util.Random;
 
+/**
+ * Swaps two random bits
+ */
 public class SwapBits extends IterableHeuristic{
 
     @Override

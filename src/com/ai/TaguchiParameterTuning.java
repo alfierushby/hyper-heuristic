@@ -23,7 +23,7 @@ import java.util.*;
  */
 public class TaguchiParameterTuning {
 
-    private final int ITERATIONS = 15;
+    private final int ITERATIONS = 30;
     private int taguchi_iteration = 0, iteration = 0;
 
     /**
@@ -70,7 +70,7 @@ public class TaguchiParameterTuning {
 
     int[] formula_1 = {25, 18, 15, 12, 10, 8, 6, 4, 2, 1};
 
-    String[] instances = {"src/test_instances/d1_50_500.txt","src/test_instances/d2_50_500.txt"};
+    String[][] instances = {{"src/test_instances","d1_50_500"},{"src/test_instances" ,"d2_50_500"}};
 
     public int[][][] getResult() {
         return result;
@@ -84,7 +84,7 @@ public class TaguchiParameterTuning {
         this.iteration = iteration;
     }
 
-    public String[] getInstances() {
+    public String[][] getInstances() {
         return instances;
     }
 
@@ -156,9 +156,8 @@ public class TaguchiParameterTuning {
 
     /**
      * Starts the test on the specified problem domain.
-     * @param file_name File name for the result to be saved to.
      */
-    void startTest(String file_name) {
+    void startTest() {
         // Creates the result array for use.
         setResult(new int[ITERATIONS][getInstances().length][getTaguchiArray().length]);
 
@@ -196,7 +195,7 @@ public class TaguchiParameterTuning {
                     // Create a hyper heuristic and problem domain
                     Random rng= new Random(seed);
                     Problem problem = new MinSetProblem(rng);
-                    problem.loadInstance(getInstances()[instance]);
+                    problem.loadInstance(getInstances()[instance][0],getInstances()[instance][1]);
 
                     // Create hyper heuristic.
                     HyperHeuristic hyper_heuristic = new HyperHeuristicModifiedChoice(rng,

@@ -4,6 +4,9 @@ import com.ai.problems.min_set.MinSetProblem;
 
 import java.util.Random;
 
+/**
+ * Picks a random point in the solution and sets an intensity number of nodes to false below that point.
+ */
 public class RuinRecreateLowest extends RuinRecreateHeuristic{
 
     public RuinRecreateLowest(MinSetProblem problem, Random rng) {

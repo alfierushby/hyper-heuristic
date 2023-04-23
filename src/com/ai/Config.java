@@ -6,6 +6,6 @@ package com.ai;
  */
 public class Config {
     public static double RANDOM_INTIALISATION = 0.5;
-    public static double DEPTH_OF_SEARCH = 0.4;
-    public static double INTENSITY_OF_MUTATION =0.6;
+    public static double DEPTH_OF_SEARCH = 0;
+    public static double INTENSITY_OF_MUTATION =0;
 }

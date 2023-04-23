@@ -30,6 +30,12 @@ public class MinSetProblem implements Problem {
 
     private final Map<Enum<HeuristicClasses>, Heuristic[]> heuristics = new HashMap<>();
 
+    private String instance_name;
+    Solution best_solution;
+
+    public void setInstanceName(String instance_name) {
+        this.instance_name = instance_name;
+    }
 
     public Operations getOperations() {
         return operations;
@@ -128,6 +134,9 @@ public class MinSetProblem implements Problem {
         return caseConvertion(INTENSITY_OF_MUTATION);
     }
 
+    /**
+     * @param rng Random element
+     */
     public MinSetProblem(Random rng) {
         this.rng = rng;
         setOperations(new Operations(this));
@@ -165,6 +174,24 @@ public class MinSetProblem implements Problem {
     public int getObjectiveValueGoal() {
         // Minimisation problem.
         return 1;
+    }
+
+    @Override
+    public String getInstanceName() {
+        return instance_name;
+    }
+
+    @Override
+    public void setBestSolution(int sol_index) {
+        best_solution = getSolution(sol_index);
+    }
+
+    /**
+     * Note this is set by a hyper heuristic!
+     * @return the best solution created in the problem domain
+     */
+    public Solution getBestSolution() {
+        return best_solution;
     }
 
     /**
@@ -235,14 +262,10 @@ public class MinSetProblem implements Problem {
         return inserted;
     }
 
-
-    /**
-     * Loads a problem instance
-     * @param Path path of problem instance, txt form.
-     */
     @Override
-    public void loadInstance(String Path) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(Path))) {
+    public void loadInstance(String path, String file) {
+        setInstanceName(file);
+        try (BufferedReader reader = new BufferedReader(new FileReader(path + "/" + file + ".txt"))) {
             String line = reader.readLine();
             // Stack to keep track of execution
             String[] arr;
