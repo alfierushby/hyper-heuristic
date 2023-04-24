@@ -30,7 +30,7 @@ public class Solution implements Cloneable {
     }
 
     /**
-     * @return Purely includes only the scoring outside of infeasible solutions. Should only be used when modifying
+     * @return Purely includes only the scoring without infeasible solutions. Should only be used when modifying
      * the objective value.
      */
     public int getPureObjectiveValue() {
