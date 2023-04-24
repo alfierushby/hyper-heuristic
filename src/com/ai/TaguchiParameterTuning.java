@@ -6,7 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 /**
- * Performs a L25 taguchi array test. Does 30 trials on each instance for 20 seconds, averaging the resulting best objective
+ * Performs a L25 taguchi array test. Does 30 trials on each instance for X seconds, averaging the resulting best objective
  * value. Variables to modify are:
  * <br><br>
  * <b>Phi Weight</b>: {0.2,0.4,0.6,0.8,0.99}
@@ -189,7 +189,6 @@ public class TaguchiParameterTuning {
 
                 System.out.println("/////////////////////////////////////////////////////////");
                 while(getTaguchiIteration() < getTaguchiShuffled().size()){
-                    int[] taguchi_configuration = getTaguchiShuffled().get(getTaguchiIteration());
 
 
                     // Create a hyper heuristic and problem domain

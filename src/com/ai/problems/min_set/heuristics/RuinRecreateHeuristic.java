@@ -6,9 +6,10 @@ import com.ai.problems.min_set.Solution;
 
 import java.util.Random;
 
-import static com.ai.Config.INTENSITY_OF_MUTATION;
 
-
+/**
+ * A general ruin-recreate heuristic. Will rebuild the solution after applying the ruin part.
+ */
 public abstract class RuinRecreateHeuristic extends Heuristic{
     @Override
     public HeuristicClasses getHeuristicClass() {
@@ -32,14 +33,14 @@ public abstract class RuinRecreateHeuristic extends Heuristic{
      * The heuristic single iteration to be executed.
      * @param save_index Solution index to apply to
      */
-    public abstract void applyHeuristicSingle(int save_index);
+    public abstract void applyRuin(int save_index);
 
 
     @Override
     public void applyHeuristic(int sol_index, int save_index) {
         getProblem().copySolution(sol_index,save_index);
         // Ruin solution
-        applyHeuristicSingle(save_index);
+        applyRuin(save_index);
         // Recreate solution
         Solution sol = getProblem().getSolution(save_index);
         boolean[] sol_data = sol.getSolutionData();

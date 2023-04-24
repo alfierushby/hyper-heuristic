@@ -7,6 +7,9 @@ import com.ai.problems.min_set.SolutionEvaluator;
 import java.util.Arrays;
 import java.util.Random;
 
+/**
+ * Implements uniform XO crossover.
+ */
 public class UniformXO extends CrossoverHeuristic {
 
     public UniformXO(MinSetProblem problem, Random random) {

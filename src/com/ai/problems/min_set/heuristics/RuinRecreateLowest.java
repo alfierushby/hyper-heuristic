@@ -18,7 +18,7 @@ public class RuinRecreateLowest extends RuinRecreateHeuristic{
      * @param save_index Solution index where it saves
      */
     @Override
-    public void applyHeuristicSingle(int save_index) {
+    public void applyRuin(int save_index) {
         int len = problem.getNumberOfSubsets();
         int ran = getRng().nextInt(len);
         for(int i=ran;i>ran-getIntensity();i--){

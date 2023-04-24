@@ -5,6 +5,9 @@ import com.ai.problems.min_set.Solution;
 
 import java.util.Random;
 
+/**
+ * Implements uniform 2 point crossover.
+ */
 public class Uniform2Point extends CrossoverHeuristic {
 
     public Uniform2Point(MinSetProblem problem, Random random) {

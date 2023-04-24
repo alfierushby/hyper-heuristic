@@ -7,6 +7,9 @@ import com.ai.problems.min_set.Solution;
 import java.util.Arrays;
 import java.util.Random;
 
+/**
+ * General crossover heuristic. Selects the best solutions procured from the crossover and returns it.
+ */
 public abstract class CrossoverHeuristic extends Heuristic {
 
     @Override

@@ -5,6 +5,9 @@ import com.ai.problems.min_set.MinSetProblem;
 
 import java.util.Random;
 
+/**
+ * Implements the Steepest Descent hill climbing method.
+ */
 public class SteepestDescentHC extends IterableHeuristic {
     @Override
     public HeuristicClasses getHeuristicClass() {

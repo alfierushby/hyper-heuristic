@@ -5,6 +5,9 @@ import com.ai.problems.min_set.MinSetProblem;
 
 import java.util.Random;
 
+/**
+ * Implements the random mutation hill climbing method. Accepts non-worsening moves.
+ */
 public class RandomMutationHC extends IterableHeuristic {
     @Override
     public HeuristicClasses getHeuristicClass() {

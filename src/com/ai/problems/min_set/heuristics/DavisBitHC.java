@@ -5,6 +5,10 @@ import com.ai.problems.min_set.MinSetProblem;
 
 import java.util.ArrayList;
 import java.util.Random;
+
+/**
+ * Implements the Davis Bit Hill Climbing method. Accepts non-worsening solutions.
+ */
 public class DavisBitHC extends IterableHeuristic {
 
     @Override

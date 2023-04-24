@@ -4,6 +4,9 @@ import com.ai.problems.min_set.MinSetProblem;
 
 import java.util.Random;
 
+/**
+ * An iterable heuristic, meaning it will run x number of times specified in the iterations variable.
+ */
 public abstract class IterableHeuristic extends Heuristic {
     int iterations;
     boolean skippable = true;

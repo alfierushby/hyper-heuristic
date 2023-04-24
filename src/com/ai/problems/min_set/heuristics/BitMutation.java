@@ -5,6 +5,9 @@ import com.ai.problems.min_set.MinSetProblem;
 
 import java.util.Random;
 
+/**
+ * Selects a random bit and flips it.
+ */
 public class BitMutation extends IterableHeuristic {
 
 

@@ -4,6 +4,10 @@ import com.ai.HeuristicClasses;
 import com.ai.problems.min_set.MinSetProblem;
 
 import java.util.Random;
+
+/**
+ * Implements the first improvement hill climbing method. Accepts non-worsening solutions.
+ */
 public class FirstImprovementHC extends IterableHeuristic {
     @Override
     public HeuristicClasses getHeuristicClass() {
