@@ -10,10 +10,10 @@ To directly run the hyper heuristic, the following code will work:
     HyperHeuristicModifiedChoice hyper_heuristic = new HyperHeuristicModifiedChoice(ran);
     hyper_heuristic.applyHyperHeuristic(problem);
 
-This will load the 4th instance, and the results/running values will be displayed in the console. 
+This will load the 4th instance, and the results/running values will be displayed in the console. It is recommended that DEBUG is set to true to see the results of the run.
 
 ## Running via the 'FileOutput' class
-To do this, simple run:
+To do this, run:
 
     FileOutput runner = new FileOutput();
     runner.run("d2_50_500");
@@ -26,4 +26,8 @@ To do this, run:
     TaguchiParameterTuning test = new TaguchiParameterTuning();
     test.startTest();
 
-It is recommended to comment out the println code in the 'HyperHeuristicModifiedChoice' class.
+It is recommended to set DEBUG to false to see the results of the tuning. Modify the hyper heuristic termination conditions in its class for differing run lengths.
+
+## DEBUG Mode
+If you require the hyper heuristic to output to the console with its implementation specific information (function values, etc) set
+DEBUG to true in the Config class.
