@@ -19,7 +19,7 @@ import static com.ai.Config.*;
  * from a list of the top 5 solutions as its secondary parent solution.
  */
 public class HyperHeuristicModifiedChoice implements HyperHeuristic{
-    int max_number_of=100;
+    int max_number_of=10;
     Random rng;
     int best_objective_value, current_objective_value, iteration=0;
     final int offset = 5, max_best_heuristics = 4;

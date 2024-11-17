@@ -20,7 +20,7 @@ public class Config {
     /**
      * Set to true when you want the hyper heuristic to print its state on every iteration.
      */
-    public static final boolean DEBUG = false;
+    public static final boolean DEBUG = true;
     /**
      * Length of each run/trial in milliseconds.
      */

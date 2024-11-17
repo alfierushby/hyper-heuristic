@@ -22,13 +22,13 @@ public class Main {
     public static void main(String[] args) throws IOException {
 
         FileOutput runner = new FileOutput();
-        runner.run("d2_50_500");
+        runner.run("demo_instance2");
 
-//        Random ran = new Random(123456789);
-//        MinSetProblem problem = new MinSetProblem(ran);
-//        problem.loadInstance("src/test_instances","d4_2047_495");
-//        HyperHeuristicModifiedChoice hyper_heuristic = new HyperHeuristicModifiedChoice(ran);
-//        hyper_heuristic.applyHyperHeuristic(problem);
+        Random ran = new Random(123456789);
+        MinSetProblem problem = new MinSetProblem(ran);
+        problem.loadInstance("src/test_instances","d2_50_500");
+        HyperHeuristicModifiedChoice hyper_heuristic = new HyperHeuristicModifiedChoice(ran);
+        hyper_heuristic.applyHyperHeuristic(problem);
 
 //        TaguchiParameterTuning test = new TaguchiParameterTuning();
 //        test.startTest();
