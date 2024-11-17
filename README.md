@@ -21,6 +21,8 @@ To do this, run:
 This will output the results of the hyper heuristic in 6 files (5 for the 5 trials, and 1 outlining the best solutions conjured), in the root folder. It is set to do 5 trials on 5 seeds.
 
 ## Running via the 'TaguchiParameterTuning' class
+
+This uses taguchi paramater tuning to iterate and find the best set of hyper parameters for the hyper heuristic to solve the solution. Taguchi parameter tuning will take the longest to execute.
 To do this, run:
 
     TaguchiParameterTuning test = new TaguchiParameterTuning();
